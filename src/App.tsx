@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 import { useState } from 'react'
 import storyImage from './assets/story.png'
 import mayaImage from './assets/maya.png'
 import danielImage from './assets/daniel.png'
 import aishaImage from './assets/aisha.png'
+=======
+>>>>>>> 4e2d943 (Version 0.0.2)
 import './App.css'
+import ForYouPage from './pages/ForYouPage'
 
+<<<<<<< HEAD
 type Page = 'For you' | 'Candidates' | 'Compare'
 type IconName = 'pin' | 'arrow' | 'back' | 'search' | 'users' | 'columns' | 'info' | 'home' | 'tram' | 'scale' | 'check' | 'chevron'
 
@@ -22,6 +27,10 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
     check: <path d="m5 12 4 4L19 6"/>, chevron: <path d="m7 10 5 5 5-5"/>,
   }
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>
+=======
+function App() {
+  return <ForYouPage />
+>>>>>>> 4e2d943 (Version 0.0.2)
 }
 
 const candidates = [
