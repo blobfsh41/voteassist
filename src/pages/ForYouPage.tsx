@@ -3,26 +3,18 @@ import storyImage from '../assets/story.png'
 import { stories } from '../data/stories'
 import Icon from '../components/Icon'
 import Notice from '../components/Notice'
+import { useState } from 'react'
 
-interface ForYouPageProps {
-  filter: string
-  setFilter: (filter: string) => void
-  openStory: string | null
-  setOpenStory: (story: string | null) => void
-}
+export default function ForYouPage() {
+  const [filter, setFilter] = useState('')
+  const [openStory, setOpenStory] = useState<string | null>(null)
 
-export default function ForYouPage({
-  filter,
-  setFilter,
-  openStory,
-  setOpenStory,
-}: ForYouPageProps) {
   const visibleStories = filter
     ? stories.filter(story =>
         story.source.toLowerCase().includes(filter.toLowerCase()),
       )
     : stories
-
+    
   return (
     <main className="content" data-node-id="5:704">
       <section className="intro">

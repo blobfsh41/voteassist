@@ -1,21 +1,40 @@
 
 import { candidates } from '../data/candidates'
+import { useState } from 'react'
 import Icon from '../components/Icon'
 import Notice from '../components/Notice'
 
 interface CandidatesPageProps {
-  selected: number[]
-  toggleCandidate: (index: number) => void
+  comparison: number[]
+  onChangeCandidate: (column: number, candidateIndex: number) => void
+  onViewPolicies: (candidateIndex: number) => void
   onCompare: () => void
-  onViewPolicies: (index: number) => void
 }
 
 export default function CandidatesPage({
-  selected,
-  toggleCandidate,
-  onCompare,
+  comparison,
+  onChangeCandidate,
   onViewPolicies,
+  onCompare,
 }: CandidatesPageProps) {
+  const [changeColumn, setChangeColumn] = useState<number | null>(null)
+  const selected = comparison
+
+  const toggleCandidate = (candidateIndex: number) => {
+    const selectedColumn = selected.indexOf(candidateIndex)
+
+    if (selectedColumn !== -1) {
+      setChangeColumn(selectedColumn)
+      return
+    }
+
+    const column = changeColumn ?? selected.length
+    if (column >= 2) return
+
+    onChangeCandidate(column, candidateIndex)
+    setChangeColumn(null)
+  }
+
   return (
     <main className="content" data-node-id="5:764">
       <section className="results-intro">

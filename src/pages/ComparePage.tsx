@@ -2,20 +2,18 @@
 import { candidates } from '../data/candidates'
 import Icon from '../components/Icon'
 import Notice from '../components/Notice'
+import { useState } from 'react'
 
 interface ComparePageProps {
   comparison: number[]
-  changeColumn: number | null
-  setChangeColumn: (column: number | null) => void
   onChangeCandidate: (column: number, candidateIndex: number) => void
 }
 
 export default function ComparePage({
   comparison,
-  changeColumn,
-  setChangeColumn,
   onChangeCandidate,
 }: ComparePageProps) {
+  const [changeColumn, setChangeColumn] = useState<number | null>(null)
   return (
     <main className="content" data-node-id="5:861">
       <section className="compare-intro">
