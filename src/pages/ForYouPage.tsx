@@ -1,48 +1,125 @@
-import { useState } from 'react'
-import heroImg from '../assets/hero.png'
-import reactLogo from '../assets/react.svg'
-import viteLogo from '../assets/vite.svg'
-import Notice from '../components/Notice'
-import { resourceSections } from '../data/stories'
 
-function ForYouPage() {
-  const [count, setCount] = useState(0)
+import storyImage from '../assets/story.png'
+import { stories } from '../data/stories'
+import Icon from '../components/Icon'
+import Notice from '../components/Notice'
+
+interface ForYouPageProps {
+  filter: string
+  setFilter: (filter: string) => void
+  openStory: string | null
+  setOpenStory: (story: string | null) => void
+}
+
+export default function ForYouPage({
+  filter,
+  setFilter,
+  openStory,
+  setOpenStory,
+}: ForYouPageProps) {
+  const visibleStories = filter
+    ? stories.filter(story =>
+        story.source.toLowerCase().includes(filter.toLowerCase()),
+      )
+    : stories
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="" />
+    <main className="content" data-node-id="5:704">
+      <section className="intro">
+        <div className="eyebrow">
+          <Icon name="pin" size={14} /> BRUNSWICK ELECTORATE
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
+        <h1>
+          News for you.
+          <br />
+          Brunswick electorate.
+        </h1>
+        <p>
+          Local reporting and policy updates tailored to your electorate and
+          the issues you care about. No endorsements, just clear context.
+        </p>
+        <div className="chips">
+          {['Housing', 'Transport', 'Local spaces'].map(issue => (
+            <button
+              key={issue}
+              className={filter === issue ? 'chip active' : 'chip'}
+              onClick={() => setFilter(filter === issue ? '' : issue)}
+            >
+              {issue}
+            </button>
+          ))}
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((value) => value + 1)}
-        >
-          Count is {count}
-        </button>
       </section>
 
-      <div className="ticks"></div>
+      {(!filter || filter === 'Housing') && (
+        <article className="card featured" data-node-id="5:725">
+          <div className="card-meta">
+            <span>Lorem Daily - Housing</span>
+            <span>Today</span>
+          </div>
+          <img
+            className="story-image"
+            src={storyImage}
+            alt="A tree-lined Brunswick street with a tram"
+          />
+          <h2>New housing plan proposed for Brunswick precinct</h2>
+          <p>
+            A draft proposal would add more affordable homes near tram routes
+            while keeping community spaces intact. Candidates are already
+            responding with different ideas on density and resident input.
+          </p>
+          <div className="story-footer">
+            <span>4 min read</span>
+            <button
+              className="text-link muted-link"
+              onClick={() =>
+                setOpenStory(openStory === 'featured' ? null : 'featured')
+              }
+            >
+              Read story <Icon name="arrow" size={14} />
+            </button>
+          </div>
+          {openStory === 'featured' && (
+            <p className="expanded">
+              This is an illustrative story created to show how local reporting
+              could appear in VoteAssist.
+            </p>
+          )}
+        </article>
+      )}
 
-      <section id="next-steps">
-        {resourceSections.map((section) => (
-          <Notice key={section.id} section={section} />
+      <section className="updates" data-node-id="5:737">
+        <div className="section-heading">
+          <h2>Latest updates</h2>
+          <span>Illustrative news</span>
+        </div>
+
+        {visibleStories.map(story => (
+          <article className="card news-card" key={story.title}>
+            <div className="card-meta">
+              <span>{story.source}</span>
+              <span>{story.date}</span>
+            </div>
+            <h3>{story.title}</h3>
+            <p>{story.text}</p>
+            <button
+              className="text-link muted-link"
+              onClick={() =>
+                setOpenStory(openStory === story.title ? null : story.title)
+              }
+            >
+              Open article <Icon name="arrow" size={14} />
+            </button>
+            {openStory === story.title && (
+              <p className="expanded">
+                This is an illustrative update, not a real news article.
+              </p>
+            )}
+          </article>
         ))}
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <Notice news />
+    </main>
   )
 }
-
-export default ForYouPage
