@@ -80,7 +80,7 @@ export default function ComparePage({
             <h2>{category.title}</h2>
           </div>
 
-          <p>{category.description}</p>
+          <p className="issue-description">{category.description}</p>
 
           <div className="policy-grid">
             {comparison.map(candidateId => {

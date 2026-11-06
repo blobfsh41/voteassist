@@ -37,3 +37,56 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
+
+.issue-card {
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.issue-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #f5f5f8;
+  padding: 12px 16px;
+  color: #605c8a;
+}
+
+.issue-heading h2 {
+  font-size: 15px;
+  color: #14263d;
+}
+
+.issue-description {
+  padding: 12px 16px 10px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #788699;
+}
+
+.policy-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.policy {
+  padding: 12px 14px 14px;
+  min-width: 0;
+}
+
+.policy + .policy {
+  border-left: 1px solid #dfe5ed;
+}
+
+.policy h3 {
+  font-size: 13px;
+  line-height: 18px;
+  margin-bottom: 8px;
+}
+
+.policy p {
+  font-size: 13px;
+  line-height: 19px;
+  color: #56677c;
+  margin-top: 0;
+}

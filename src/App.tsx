@@ -22,13 +22,19 @@ function App() {
   }
 
   const changeCandidate = (column: number, candidateId: string) => {
-    setSelectedCandidates(current =>
-      current
-        .map((candidate, index) =>
-          index === column ? candidateId : candidate,
-        )
-        .filter(Boolean),
-    )
+    setSelectedCandidates(current => {
+      if (candidateId === '') {
+        return current.filter((_, index) => index !== column)
+      }
+
+      if (column === current.length) {
+        return [...current, candidateId]
+      }
+
+      return current.map((candidate, index) =>
+        index === column ? candidateId : candidate,
+      )
+    })
   }
 
   const viewPolicies = (candidateId: string) => {
