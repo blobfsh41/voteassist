@@ -17,22 +17,18 @@ export default function CandidatesPage({
   onViewPolicies,
   onCompare,
 }: CandidatesPageProps) {
-  const [changeColumn, setChangeColumn] = useState<number | null>(null)
+  const [pendingCandidate, setPendingCandidate] = useState<string | null>(null)
   const selected = comparison
 
   const toggleCandidate = (candidateId: string) => {
-    const selectedColumn = selected.indexOf(candidateId)
+    if (selected.includes(candidateId)) return
 
-    if (selectedColumn !== -1) {
-      setChangeColumn(selectedColumn)
+    if (selected.length >= 2) {
+      setPendingCandidate(candidateId)
       return
     }
 
-    const column = changeColumn ?? selected.length
-    if (column >= 2) return
-
-    onChangeCandidate(column, candidateId)
-    setChangeColumn(null)
+    onChangeCandidate(selected.length, candidateId)
   }
 
   return (
@@ -98,6 +94,39 @@ export default function CandidatesPage({
             </div>
           </article>
         ))}
+        {pendingCandidate && (
+          <section className="card candidate-replace-prompt">
+            <strong>Replace which candidate?</strong>
+            <p>Choose which candidate to remove from your comparison.</p>
+
+            <div className="candidate-replace-options">
+              {selected.map((candidateId, column) => {
+                const candidate = candidates.find(
+                  item => item.id === candidateId,
+                )
+
+                return (
+                  <button
+                    key={candidateId}
+                    onClick={() => {
+                      onChangeCandidate(column, pendingCandidate)
+                      setPendingCandidate(null)
+                    }}
+                  >
+                    Replace {candidate?.name ?? candidateId}
+                  </button>
+                )
+              })}
+            </div>
+
+            <button
+              className="text-link"
+              onClick={() => setPendingCandidate(null)}
+            >
+              Cancel
+            </button>
+          </section>
+        )}
       </section>
 
       <section className="card selection-card">
@@ -105,7 +134,11 @@ export default function CandidatesPage({
           <span>
             {selected.length
               ? selected
-                  .map(id => candidates.find(candidate => candidate.id === id)?.name ?? id)
+                  .map(
+                    id =>
+                      candidates.find(candidate => candidate.id === id)?.name ??
+                      id,
+                  )
                   .join(' + ')
               : 'Choose two candidates'}
           </span>
