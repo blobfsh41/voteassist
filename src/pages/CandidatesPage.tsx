@@ -1,6 +1,5 @@
 
 import { candidates } from '../data/candidates'
-import { useState } from 'react'
 import Icon from '../components/Icon'
 import Notice from '../components/Notice'
 
@@ -17,7 +16,6 @@ export default function CandidatesPage({
   onViewPolicies,
   onCompare,
 }: CandidatesPageProps) {
-  const [pendingCandidate, setPendingCandidate] = useState<string | null>(null)
   const selected = comparison
 
   const toggleCandidate = (candidateId: string) => {
@@ -99,39 +97,6 @@ export default function CandidatesPage({
             </div>
           </article>
         ))}
-        {pendingCandidate && (
-          <section className="card candidate-replace-prompt">
-            <strong>Replace which candidate?</strong>
-            <p>Choose which candidate to remove from your comparison.</p>
-
-            <div className="candidate-replace-options">
-              {selected.map((candidateId, column) => {
-                const candidate = candidates.find(
-                  item => item.id === candidateId,
-                )
-
-                return (
-                  <button
-                    key={candidateId}
-                    onClick={() => {
-                      onChangeCandidate(column, pendingCandidate)
-                      setPendingCandidate(null)
-                    }}
-                  >
-                    Replace {candidate?.name ?? candidateId}
-                  </button>
-                )
-              })}
-            </div>
-
-            <button
-              className="text-link"
-              onClick={() => setPendingCandidate(null)}
-            >
-              Cancel
-            </button>
-          </section>
-        )}
       </section>
 
       <section className="card selection-card">

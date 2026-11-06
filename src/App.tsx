@@ -6,6 +6,7 @@ import ComparePage from './pages/ComparePage'
 import AppHeader from './components/AppHeader'
 import BottomNav from './components/BottomNav'
 import { candidates } from './data/candidates'
+import { changeCandidateSelection } from './lib/candidateSelection'
 
 type Page = 'For you' | 'Candidates' | 'Compare'
 
@@ -22,19 +23,9 @@ function App() {
   }
 
   const changeCandidate = (column: number, candidateId: string) => {
-    setSelectedCandidates(current => {
-      if (candidateId === '') {
-        return current.filter((_, index) => index !== column)
-      }
-
-      if (column === current.length) {
-        return [...current, candidateId]
-      }
-
-      return current.map((candidate, index) =>
-        index === column ? candidateId : candidate,
-      )
-    })
+    setSelectedCandidates(current =>
+      changeCandidateSelection(current, column, candidateId),
+    )
   }
 
   const viewPolicies = (candidateId: string) => {
