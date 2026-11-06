@@ -1,8 +1,11 @@
 
+export type PolicyCategoryId = 'housing' | 'transport'
+
 export interface PolicyCategory {
-  id: string
+  id: PolicyCategoryId
   title: string
   description: string
+  icon: 'home' | 'tram'
 }
 
 export interface PolicyPosition {
@@ -15,10 +18,12 @@ export const policyCategories: PolicyCategory[] = [
     id: 'housing',
     title: 'Housing',
     description: 'Housing affordability, supply and planning.',
+    icon: 'home',
   },
   {
     id: 'transport',
     title: 'Public transport',
     description: 'Public transport accessibility, reliability and infrastructure.',
+    icon: 'tram',
   },
 ]

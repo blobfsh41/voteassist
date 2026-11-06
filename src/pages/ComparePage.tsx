@@ -30,7 +30,9 @@ export default function ComparePage({
 
       <div className="compare-headings">
         {comparison.map((candidateIndex, column) => {
-          const candidate = candidates[candidateIndex]
+          const candidate = candidates.find(
+            candidate => candidate.id === candidateId,
+          )
 
           return (
             <div className="card compare-person" key={column}>
@@ -69,10 +71,7 @@ export default function ComparePage({
     {policyCategories.map(category => (
       <section className="card issue-card" key={category.id}>
         <div className="issue-heading">
-          <Icon
-            name={category.id === 'housing' ? 'home' : 'tram'}
-            size={19}
-          />
+          <Icon name={category.icon} size={19} />
           <h2>{category.title}</h2>
         </div>
 
@@ -80,7 +79,9 @@ export default function ComparePage({
 
         <div className="policy-grid">
           {comparison.map(candidateIndex => {
-            const candidate = candidates[candidateIndex]
+            const candidate = candidates.find(
+              candidate => candidate.id === candidateId,
+            )
             const policy = candidate.policies[category.id]
 
             return (

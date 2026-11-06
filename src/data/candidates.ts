@@ -2,10 +2,11 @@
 import mayaImage from '../assets/maya.png'
 import danielImage from '../assets/daniel.png'
 import aishaImage from '../assets/aisha.png'
-import type { PolicyPosition } from './policies'
+import type { Candidate } from './candidateTypes'
 
-export const candidates = [
+export const candidates: Candidate[] = [
   {
+    id: 'maya-chen',
     name: 'Maya Chen',
     party: 'Community Voice',
     image: mayaImage,
@@ -17,10 +18,11 @@ export const candidates = [
       transport: {
         title: 'Frequent services',
         text: 'Advocate for more frequent trams and step-free stops along Sydney Road.',
-      },
-    } satisfies Record<string, PolicyPosition>,
+    },
   },
+},
   {
+    id: 'daniel-brooks',
     name: 'Daniel Brooks',
     party: 'Independent',
     image: danielImage,
@@ -33,9 +35,10 @@ export const candidates = [
         title: 'Frequent services',
         text: 'Advocate for more frequent trams and step-free stops along Sydney Road.',
       },
-    } satisfies Record<string, PolicyPosition>,
+    },
   },
   {
+    id: 'aisha-patel',
     name: 'Aisha Patel',
     party: 'Local Tomorrow',
     image: aishaImage,
@@ -48,6 +51,6 @@ export const candidates = [
         title: 'Better connections',
         text: 'Advocate for better bus connections to train stations and safer walks to stops.',
       },
-    } satisfies Record<string, PolicyPosition>,
+    },
   },
 ]

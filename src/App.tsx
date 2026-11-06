@@ -9,7 +9,10 @@ type Page = 'For you' | 'Candidates' | 'Compare'
 
 function App() {
   const [page, setPage] = useState<Page>('For you')
-  const [selected, setSelected] = useState<number[]>([0, 1])
+  const [selectedCandidates, setSelectedCandidates] = useState([
+    'maya-chen',
+    'daniel-brooks',
+  ])
 
   const navigate = (nextPage: Page) => {
     setPage(nextPage)
