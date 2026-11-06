@@ -23,9 +23,11 @@ function App() {
 
   const changeCandidate = (column: number, candidateId: string) => {
     setSelectedCandidates(current =>
-      current.map((candidate, index) =>
-        index === column ? candidateId : candidate,
-      ),
+      current
+        .map((candidate, index) =>
+          index === column ? candidateId : candidate,
+        )
+        .filter(Boolean),
     )
   }
 

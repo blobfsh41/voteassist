@@ -21,12 +21,14 @@ export default function CandidatesPage({
   const selected = comparison
 
   const toggleCandidate = (candidateId: string) => {
-    if (selected.includes(candidateId)) return
+    const selectedColumn = selected.indexOf(candidateId)
 
-    if (selected.length >= 2) {
-      setPendingCandidate(candidateId)
+    if (selectedColumn !== -1) {
+      onChangeCandidate(selectedColumn, '')
       return
     }
+
+    if (selected.length >= 2) return
 
     onChangeCandidate(selected.length, candidateId)
   }
@@ -79,6 +81,9 @@ export default function CandidatesPage({
                 className="select-button"
                 onClick={() => toggleCandidate(candidate.id)}
                 aria-pressed={selected.includes(candidate.id)}
+                disabled={
+                  !selected.includes(candidate.id) && selected.length >= 2
+                }
               >
                 <span
                   className={`checkbox ${
