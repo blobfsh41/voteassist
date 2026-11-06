@@ -101,7 +101,7 @@ export default function CandidatesPage({
       </section>
 
       <section className="card selection-card">
-        <div>
+       <div aria-live="polite" aria-atomic="true">
           <span>
             {selected.length
               ? selected.map(i => candidates[i].name).join(' + ')

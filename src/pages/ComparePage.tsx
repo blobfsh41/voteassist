@@ -3,6 +3,7 @@ import { candidates } from '../data/candidates'
 import Icon from '../components/Icon'
 import Notice from '../components/Notice'
 import { useState } from 'react'
+import { policyCategories } from '../data/policies'
 
 interface ComparePageProps {
   comparison: number[]
@@ -64,27 +65,41 @@ export default function ComparePage({
         })}
       </div>
 
-      {['Housing', 'Public transport'].map((issue, issueIndex) => (
-        <section className="card issue-card" key={issue}>
-          <div className="issue-heading">
-            <Icon
-              name={issueIndex === 0 ? 'home' : 'tram'}
-              size={19}
-            />
-            <h2>{issue}</h2>
-          </div>
+      
+    {policyCategories.map(category => (
+      <section className="card issue-card" key={category.id}>
+        <div className="issue-heading">
+          <Icon
+            name={category.id === 'housing' ? 'home' : 'tram'}
+            size={19}
+          />
+          <h2>{category.title}</h2>
+        </div>
 
-          <div className="policy-grid">
-            {comparison.map(index => (
-              <div className="policy" key={index}>
-                <h3>{candidates[index].policies[issueIndex].title}</h3>
-                <p>{candidates[index].policies[issueIndex].text}</p>
-                <span>Example policy</span>
+        <p>{category.description}</p>
+
+        <div className="policy-grid">
+          {comparison.map(candidateIndex => {
+            const candidate = candidates[candidateIndex]
+            const policy = candidate.policies[category.id]
+
+            return (
+              <div className="policy" key={candidateIndex}>
+                {policy ? (
+                  <>
+                    <h3>{policy.title}</h3>
+                    <p>{policy.text}</p>
+                  </>
+                ) : (
+                  <p>No published position available.</p>
+                )}
               </div>
-            ))}
-          </div>
-        </section>
-      ))}
+            )
+          })}
+        </div>
+      </section>
+    ))}
+
 
       <div className="guidance">
         <div>
