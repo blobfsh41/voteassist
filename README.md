@@ -1,32 +1,72 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+# VoteAssist
 
-Currently, two official plugins are available:
+VoteAssist is a mobile-first civic information prototype designed to help users explore candidates, compare political platforms, and follow election-related information.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Current Status
 
-## React Compiler
+VoteAssist is an early frontend prototype. Candidate information and stories currently use demonstration data. The application is not connected to official election databases or live news services.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
 
-## Expanding the Oxlint configuration
+- Candidate browsing
+- Candidate comparison
+- Election-related story feed
+- Mobile-oriented navigation
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## Tech Stack
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Oxlint
+- Bun
+
+## Getting Started
+
+### Prerequisites
+
+Install [Bun](https://bun.sh/).
+
+### Installation
+
+```bash
+git clone https://github.com/blobfsh41/voteassist.git
+cd voteassist
+bun install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### Development
+
+```bash
+bun run dev
+```
+
+Vite will provide a local development URL, usually http://localhost:5173.
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `bun run dev` | Start development server |
+| `bun run build` | Type-check and build for production |
+| `bun run lint` | Run Oxlint |
+| `bun run preview` | Preview production build |
+
+## Project Structure
+
+```text
+src/
+├── components/   # Reusable UI components
+├── data/         # Demonstration data
+├── pages/        # Application pages
+├── assets/       # Images and static assets
+├── App.tsx       # Application state and navigation
+├── App.css       # Application styles
+└── index.css     # Global styles
+```
+
+## Disclaimer
+
+VoteAssist is an educational prototype and is not an official election service. Verify candidate information and policies against authoritative sources. The application does not endorse candidates or provide voting recommendations.

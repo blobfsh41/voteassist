@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import Icon from './components/Icon'
 import ForYouPage from './pages/ForYouPage'
 import CandidatesPage from './pages/CandidatesPage'
 import ComparePage from './pages/ComparePage'
