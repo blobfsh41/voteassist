@@ -5,9 +5,9 @@ import Icon from '../components/Icon'
 import Notice from '../components/Notice'
 
 interface CandidatesPageProps {
-  comparison: number[]
-  onChangeCandidate: (column: number, candidateIndex: number) => void
-  onViewPolicies: (candidateIndex: number) => void
+  comparison: string[]
+  onChangeCandidate: (column: number, candidateId: string) => void
+  onViewPolicies: (candidateId: string) => void
   onCompare: () => void
 }
 
@@ -20,8 +20,8 @@ export default function CandidatesPage({
   const [changeColumn, setChangeColumn] = useState<number | null>(null)
   const selected = comparison
 
-  const toggleCandidate = (candidateIndex: number) => {
-    const selectedColumn = selected.indexOf(candidateIndex)
+  const toggleCandidate = (candidateId: string) => {
+    const selectedColumn = selected.indexOf(candidateId)
 
     if (selectedColumn !== -1) {
       setChangeColumn(selectedColumn)
@@ -31,7 +31,7 @@ export default function CandidatesPage({
     const column = changeColumn ?? selected.length
     if (column >= 2) return
 
-    onChangeCandidate(column, candidateIndex)
+    onChangeCandidate(column, candidateId)
     setChangeColumn(null)
   }
 
@@ -55,12 +55,12 @@ export default function CandidatesPage({
           <span>Demo order · not ranked</span>
         </div>
 
-        {candidates.map((candidate, index) => (
+        {candidates.map(candidate => (
           <article
             className={`card candidate-card ${
-              selected.includes(index) ? 'selected' : ''
+              selected.includes(candidate.id) ? 'selected' : ''
             }`}
-            key={candidate.name}
+            key={candidate.id}
           >
             <div className="candidate-details">
               <img src={candidate.image} alt={candidate.name} />
@@ -74,26 +74,26 @@ export default function CandidatesPage({
             <div className="candidate-actions">
               <button
                 className="text-link"
-                onClick={() => onViewPolicies(index)}
+                onClick={() => onViewPolicies(candidate.id)}
               >
                 View policies <Icon name="arrow" size={14} />
               </button>
 
               <button
                 className="select-button"
-                onClick={() => toggleCandidate(index)}
-                aria-pressed={selected.includes(index)}
+                onClick={() => toggleCandidate(candidate.id)}
+                aria-pressed={selected.includes(candidate.id)}
               >
                 <span
                   className={`checkbox ${
-                    selected.includes(index) ? 'checked' : ''
+                    selected.includes(candidate.id) ? 'checked' : ''
                   }`}
                 >
-                  {selected.includes(index) && (
+                  {selected.includes(candidate.id) && (
                     <Icon name="check" size={15} />
                   )}
                 </span>
-                {selected.includes(index) ? 'Selected' : 'Compare'}
+                {selected.includes(candidate.id) ? 'Selected' : 'Compare'}
               </button>
             </div>
           </article>
@@ -101,10 +101,12 @@ export default function CandidatesPage({
       </section>
 
       <section className="card selection-card">
-       <div aria-live="polite" aria-atomic="true">
+        <div aria-live="polite" aria-atomic="true">
           <span>
             {selected.length
-              ? selected.map(i => candidates[i].name).join(' + ')
+              ? selected
+                  .map(id => candidates.find(candidate => candidate.id === id)?.name ?? id)
+                  .join(' + ')
               : 'Choose two candidates'}
           </span>
           <strong>{selected.length} of 2 selected</strong>

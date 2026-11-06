@@ -18,9 +18,9 @@ export const candidates: Candidate[] = [
       transport: {
         title: 'Frequent services',
         text: 'Advocate for more frequent trams and step-free stops along Sydney Road.',
+      },
     },
   },
-},
   {
     id: 'daniel-brooks',
     name: 'Daniel Brooks',

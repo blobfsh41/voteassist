@@ -1,15 +1,17 @@
+
 import { useState } from 'react'
 import ForYouPage from './pages/ForYouPage'
 import CandidatesPage from './pages/CandidatesPage'
 import ComparePage from './pages/ComparePage'
 import AppHeader from './components/AppHeader'
 import BottomNav from './components/BottomNav'
+import { candidates } from './data/candidates'
 
 type Page = 'For you' | 'Candidates' | 'Compare'
 
 function App() {
   const [page, setPage] = useState<Page>('For you')
-  const [selectedCandidates, setSelectedCandidates] = useState([
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([
     'maya-chen',
     'daniel-brooks',
   ])
@@ -19,12 +21,23 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const changeCandidate = (column: number, candidateIndex: number) => {
-    setSelected(current =>
+  const changeCandidate = (column: number, candidateId: string) => {
+    setSelectedCandidates(current =>
       current.map((candidate, index) =>
-        index === column ? candidateIndex : candidate,
+        index === column ? candidateId : candidate,
       ),
     )
+  }
+
+  const viewPolicies = (candidateId: string) => {
+    const otherCandidate = candidates.find(
+      candidate => candidate.id !== candidateId,
+    )
+
+    if (!otherCandidate) return
+
+    setSelectedCandidates([candidateId, otherCandidate.id])
+    navigate('Compare')
   }
 
   return (
@@ -39,19 +52,16 @@ function App() {
 
         {page === 'Candidates' && (
           <CandidatesPage
-            comparison={selected}
+            comparison={selectedCandidates}
             onChangeCandidate={changeCandidate}
             onCompare={() => navigate('Compare')}
-            onViewPolicies={index => {
-              setSelected(index === 0 ? [0, 1] : [index, 0])
-              navigate('Compare')
-            }}
+            onViewPolicies={viewPolicies}
           />
         )}
 
         {page === 'Compare' && (
           <ComparePage
-            comparison={selected}
+            comparison={selectedCandidates}
             onChangeCandidate={changeCandidate}
           />
         )}
@@ -60,7 +70,7 @@ function App() {
       <BottomNav
         page={page}
         onNavigate={navigate}
-        canCompare={selected.length === 2}
+        canCompare={selectedCandidates.length === 2}
       />
     </div>
   )

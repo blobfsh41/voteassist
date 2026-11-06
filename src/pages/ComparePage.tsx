@@ -6,8 +6,8 @@ import { useState } from 'react'
 import { policyCategories } from '../data/policies'
 
 interface ComparePageProps {
-  comparison: number[]
-  onChangeCandidate: (column: number, candidateIndex: number) => void
+  comparison: string[]
+  onChangeCandidate: (column: number, candidateId: string) => void
 }
 
 export default function ComparePage({
@@ -15,6 +15,7 @@ export default function ComparePage({
   onChangeCandidate,
 }: ComparePageProps) {
   const [changeColumn, setChangeColumn] = useState<number | null>(null)
+
   return (
     <main className="content" data-node-id="5:861">
       <section className="compare-intro">
@@ -29,13 +30,15 @@ export default function ComparePage({
       </section>
 
       <div className="compare-headings">
-        {comparison.map((candidateIndex, column) => {
+        {comparison.map((candidateId, column) => {
           const candidate = candidates.find(
             candidate => candidate.id === candidateId,
           )
 
+          if (!candidate) return null
+
           return (
-            <div className="card compare-person" key={column}>
+            <div className="card compare-person" key={candidateId}>
               <img src={candidate.image} alt={candidate.name} />
               <h2>{candidate.name}</h2>
               <p>{candidate.party}</p>
@@ -51,11 +54,14 @@ export default function ComparePage({
 
               {changeColumn === column && (
                 <div className="candidate-menu">
-                  {candidates.map((option, index) => (
+                  {candidates.map(option => (
                     <button
-                      key={option.name}
-                      disabled={comparison[1 - column] === index}
-                      onClick={() => onChangeCandidate(column, index)}
+                      key={option.id}
+                      disabled={comparison[1 - column] === option.id}
+                      onClick={() => {
+                        onChangeCandidate(column, option.id)
+                        setChangeColumn(null)
+                      }}
                     >
                       {option.name}
                     </button>
@@ -67,40 +73,38 @@ export default function ComparePage({
         })}
       </div>
 
-      
-    {policyCategories.map(category => (
-      <section className="card issue-card" key={category.id}>
-        <div className="issue-heading">
-          <Icon name={category.icon} size={19} />
-          <h2>{category.title}</h2>
-        </div>
+      {policyCategories.map(category => (
+        <section className="card issue-card" key={category.id}>
+          <div className="issue-heading">
+            <Icon name={category.icon} size={19} />
+            <h2>{category.title}</h2>
+          </div>
 
-        <p>{category.description}</p>
+          <p>{category.description}</p>
 
-        <div className="policy-grid">
-          {comparison.map(candidateIndex => {
-            const candidate = candidates.find(
-              candidate => candidate.id === candidateId,
-            )
-            const policy = candidate.policies[category.id]
+          <div className="policy-grid">
+            {comparison.map(candidateId => {
+              const candidate = candidates.find(
+                candidate => candidate.id === candidateId,
+              )
+              const policy = candidate?.policies[category.id]
 
-            return (
-              <div className="policy" key={candidateIndex}>
-                {policy ? (
-                  <>
-                    <h3>{policy.title}</h3>
-                    <p>{policy.text}</p>
-                  </>
-                ) : (
-                  <p>No published position available.</p>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </section>
-    ))}
-
+              return (
+                <div className="policy" key={candidateId}>
+                  {policy ? (
+                    <>
+                      <h3>{policy.title}</h3>
+                      <p>{policy.text}</p>
+                    </>
+                  ) : (
+                    <p>No published position available.</p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ))}
 
       <div className="guidance">
         <div>
