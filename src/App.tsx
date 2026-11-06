@@ -7,15 +7,20 @@ import AppHeader from './components/AppHeader'
 import BottomNav from './components/BottomNav'
 import { candidates } from './data/candidates'
 import { changeCandidateSelection } from './lib/candidateSelection'
+import type { UserProfile } from './data/profileTypes'
+import { loadProfile, saveProfile } from './lib/profileStorage'
 
 type Page = 'For you' | 'Candidates' | 'Compare'
 
 function App() {
   const [page, setPage] = useState<Page>('For you')
-  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([
-    'maya-chen',
-    'daniel-brooks',
-  ])
+  const [profile, setProfile] = useState<UserProfile>(loadProfile)
+
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>(
+    () => profile.preferences.followedCandidates,
+  )
+
+  useState<UserProfile>(loadProfile)
 
   const navigate = (nextPage: Page) => {
     setPage(nextPage)
@@ -23,10 +28,25 @@ function App() {
   }
 
   const changeCandidate = (column: number, candidateId: string) => {
-    setSelectedCandidates(current =>
-      changeCandidateSelection(current, column, candidateId),
-    )
+  const nextSelection = changeCandidateSelection(
+    selectedCandidates,
+    column,
+    candidateId,
+  )
+
+  setSelectedCandidates(nextSelection)
+
+  const updatedProfile: UserProfile = {
+    ...profile,
+    preferences: {
+      ...profile.preferences,
+      followedCandidates: nextSelection,
+    },
   }
+
+  setProfile(updatedProfile)
+  saveProfile(updatedProfile)
+}
 
   const viewPolicies = (candidateId: string) => {
     const otherCandidate = candidates.find(
