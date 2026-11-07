@@ -20,21 +20,36 @@ function App() {
     () => profile.preferences.followedCandidates,
   )
 
-  useState<UserProfile>(loadProfile)
-
   const navigate = (nextPage: Page) => {
     setPage(nextPage)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const changeCandidate = (column: number, candidateId: string) => {
-  const nextSelection = changeCandidateSelection(
-    selectedCandidates,
-    column,
-    candidateId,
-  )
+  const updateCandidateSelection = (nextSelection: string[]) => {
+    setSelectedCandidates(nextSelection)
 
-  setSelectedCandidates(nextSelection)
+    const updatedProfile: UserProfile = {
+      ...profile,
+      preferences: {
+        ...profile.preferences,
+        followedCandidates: nextSelection,
+      },
+    }
+
+    setProfile(updatedProfile)
+    saveProfile(updatedProfile)
+  }
+
+  const changeCandidate = (column: number, candidateId: string) => {
+    const nextSelection = changeCandidateSelection(
+      selectedCandidates,
+      column,
+      candidateId,
+    )
+
+    updateCandidateSelection(nextSelection)
+  }
+
 
   const updatedProfile: UserProfile = {
     ...profile,
@@ -55,7 +70,7 @@ function App() {
 
     if (!otherCandidate) return
 
-    setSelectedCandidates([candidateId, otherCandidate.id])
+    updateCandidateSelection([candidateId, otherCandidate.id])
     navigate('Compare')
   }
 
