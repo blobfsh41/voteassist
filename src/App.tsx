@@ -50,19 +50,6 @@ function App() {
     updateCandidateSelection(nextSelection)
   }
 
-
-  const updatedProfile: UserProfile = {
-    ...profile,
-    preferences: {
-      ...profile.preferences,
-      followedCandidates: nextSelection,
-    },
-  }
-
-  setProfile(updatedProfile)
-  saveProfile(updatedProfile)
-}
-
   const viewPolicies = (candidateId: string) => {
     const otherCandidate = candidates.find(
       candidate => candidate.id !== candidateId,
