@@ -24,6 +24,25 @@ describe('validateCandidatePolicyAssessments', () => {
     expect(validateCandidatePolicyAssessments([validAssessment])).toEqual([])
   })
 
+  it('rejects unknown candidates', () => {
+    const errors = validateCandidatePolicyAssessments([
+      { ...validAssessment, candidateId: 'unknown-candidate' },
+    ])
+
+    expect(errors).toContain('Assessment 1: unknown candidate')
+  })
+
+  it('rejects unknown policy IDs', () => {
+    const errors = validateCandidatePolicyAssessments([
+      {
+        ...validAssessment,
+        policyId: 'unknown-policy',
+      } as unknown as CandidatePolicyAssessment,
+    ])
+
+    expect(errors).toContain('Assessment 1: unknown policy')
+  })
+
   it('accepts null when evidence and rationale are present', () => {
     expect(
       validateCandidatePolicyAssessments([
@@ -41,6 +60,74 @@ describe('validateCandidatePolicyAssessments', () => {
     expect(errors).toContain(
       'Assessment 2: duplicate candidate-policy assessment',
     )
+  })
+
+  it('rejects invalid scores', () => {
+    const errors = validateCandidatePolicyAssessments([
+      { ...validAssessment, score: 2 },
+    ])
+
+    expect(errors).toContain('Assessment 1: score must be between -1 and 1')
+  })
+
+  it('rejects published assessments without approved review', () => {
+    const errors = validateCandidatePolicyAssessments([
+      {
+        ...validAssessment,
+        status: 'published',
+        reviewStatus: 'pending',
+      } as CandidatePolicyAssessment,
+    ])
+
+    expect(errors).toContain(
+      'Assessment 1: published assessments require approved review',
+    )
+  })
+
+  it('rejects published assessments with fewer than two evidence sources', () => {
+    const errors = validateCandidatePolicyAssessments([
+      {
+        ...validAssessment,
+        status: 'published',
+        reviewStatus: 'approved',
+      } as CandidatePolicyAssessment,
+    ])
+
+    expect(errors).toContain(
+      'Assessment 1: published assessments require at least two evidence sources',
+    )
+  })
+
+  it('accepts valid published assessments', () => {
+    expect(
+      validateCandidatePolicyAssessments([
+        {
+          ...validAssessment,
+          status: 'published',
+          reviewStatus: 'approved',
+          evidence: [
+            ...validAssessment.evidence,
+            {
+              sourceTitle: 'Transport plan',
+              sourceUrl: 'https://example.com/transport-plan',
+              excerpt: 'Supports housing near transport corridors.',
+            },
+          ],
+        } as CandidatePolicyAssessment,
+      ]),
+    ).toEqual([])
+  })
+
+  it('accepts correctly rejected assessments', () => {
+    expect(
+      validateCandidatePolicyAssessments([
+        {
+          ...validAssessment,
+          score: null,
+          status: 'rejected',
+        },
+      ]),
+    ).toEqual([])
   })
 
   it('rejects invalid evidence URLs', () => {

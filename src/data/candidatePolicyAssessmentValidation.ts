@@ -6,8 +6,13 @@ import type { CandidatePolicyAssessment } from './candidatePolicyAssessments'
 const candidateIds = new Set(candidates.map((candidate) => candidate.id))
 const policyIds = new Set(policyQuestions.map((policy) => policy.id))
 
-const validScores = new Set([-2, -1, 0, 1, 2])
-const validStatuses = new Set(['draft', 'reviewed', 'published'])
+const validScores = new Set([-1, 0, 1])
+const validStatuses = new Set([
+  'draft',
+  'reviewed',
+  'published',
+  'rejected',
+])
 const validReviewDecisions = new Set(['approved', 'rejected'])
 const minimumPublishedEvidence = 2
 
@@ -29,30 +34,19 @@ export function validateCandidatePolicyAssessments(
     const prefix = `Assessment ${index + 1}`
     const assessmentWithReview = assessment as CandidatePolicyAssessment & {
       status?: string
+      reviewStatus?: string
       review?: {
         reviewer?: string
         reviewedAt?: string
         decision?: string
-        rejectionReason?: string
       }
     }
 
     const review = assessmentWithReview.review
+    const reviewStatus = assessmentWithReview.reviewStatus
 
     if (!validStatuses.has(assessmentWithReview.status ?? '')) {
       errors.push(`${prefix}: invalid assessment status`)
-    }
-
-    const requiresReviewMetadata =
-      assessmentWithReview.status === 'reviewed' ||
-      assessmentWithReview.status === 'published'
-
-    if (requiresReviewMetadata && !review?.reviewer?.trim()) {
-      errors.push(`${prefix}: reviewer name is required`)
-    }
-
-    if (requiresReviewMetadata && !review?.reviewedAt) {
-      errors.push(`${prefix}: review date is required`)
     }
 
     if (review) {
@@ -68,7 +62,10 @@ export function validateCandidatePolicyAssessments(
         errors.push(`${prefix}: invalid review decision`)
       }
 
-      if (review.decision === 'rejected' && !review.rejectionReason?.trim()) {
+      if (
+        review.decision === 'rejected' &&
+        !assessment.rejectionReason?.trim()
+      ) {
         errors.push(`${prefix}: rejection reason is required`)
       }
     }
@@ -76,24 +73,25 @@ export function validateCandidatePolicyAssessments(
     if (
       (assessmentWithReview.status === 'reviewed' ||
         assessmentWithReview.status === 'published') &&
+      reviewStatus !== 'approved' &&
       review?.decision !== 'approved'
     ) {
-      errors.push(`${prefix}: reviewed assessments require an approved review`)
+      errors.push(`${prefix}: published assessments require approved review`)
     }
 
     if (!candidateIds.has(assessment.candidateId)) {
-      errors.push(`${prefix}: unknown candidate "${assessment.candidateId}"`)
+      errors.push(`${prefix}: unknown candidate`)
     }
 
     if (!policyIds.has(assessment.policyId)) {
-      errors.push(`${prefix}: unknown policy "${assessment.policyId}"`)
+      errors.push(`${prefix}: unknown policy`)
     }
 
     if (
       assessment.score !== null &&
       !validScores.has(assessment.score)
     ) {
-      errors.push(`${prefix}: invalid score`)
+      errors.push(`${prefix}: score must be between -1 and 1`)
     }
 
     const key = `${assessment.candidateId}:${assessment.policyId}`

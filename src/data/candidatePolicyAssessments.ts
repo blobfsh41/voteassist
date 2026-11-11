@@ -34,6 +34,7 @@ export interface CandidatePolicyAssessment {
   evidence: PolicyEvidence[]
   assessedAt: string
   status: AssessmentStatus
+  reviewStatus?: 'pending' | 'approved' | 'rejected'
   review?: AssessmentReview
   rejectionReason?: string
 }
