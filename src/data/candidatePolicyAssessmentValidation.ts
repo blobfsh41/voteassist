@@ -7,6 +7,8 @@ const candidateIds = new Set(candidates.map((candidate) => candidate.id))
 const policyIds = new Set(policyQuestions.map((policy) => policy.id))
 
 const validScores = new Set([-2, -1, 0, 1, 2])
+const validStatuses = new Set(['draft', 'reviewed', 'published'])
+const minimumPublishedEvidence = 2
 
 function isValidDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
@@ -24,6 +26,41 @@ export function validateCandidatePolicyAssessments(
 
   assessments.forEach((assessment, index) => {
     const prefix = `Assessment ${index + 1}`
+    const assessmentWithReview = assessment as CandidatePolicyAssessment & {
+      status?: string
+      reviewerName?: string
+      reviewedAt?: string
+    }
+
+    if (!validStatuses.has(assessmentWithReview.status ?? '')) {
+      errors.push(`${prefix}: invalid assessment status`)
+    }
+
+    const requiresReviewMetadata =
+      assessmentWithReview.status === 'reviewed' ||
+      assessmentWithReview.status === 'published'
+
+    if (requiresReviewMetadata && !assessmentWithReview.reviewerName?.trim()) {
+      errors.push(`${prefix}: reviewer name is required`)
+    }
+
+    if (requiresReviewMetadata && !assessmentWithReview.reviewedAt) {
+      errors.push(`${prefix}: review date is required`)
+    }
+
+    if (
+      assessmentWithReview.reviewerName !== undefined &&
+      !assessmentWithReview.reviewerName.trim()
+    ) {
+      errors.push(`${prefix}: reviewer name cannot be empty`)
+    }
+
+    if (
+      assessmentWithReview.reviewedAt !== undefined &&
+      !isValidDate(assessmentWithReview.reviewedAt)
+    ) {
+      errors.push(`${prefix}: invalid review date`)
+    }
 
     if (!candidateIds.has(assessment.candidateId)) {
       errors.push(`${prefix}: unknown candidate "${assessment.candidateId}"`)
@@ -57,6 +94,13 @@ export function validateCandidatePolicyAssessments(
 
     if (assessment.evidence.length === 0) {
       errors.push(`${prefix}: at least one evidence source is required`)
+    }
+
+    if (
+      assessmentWithReview.status === 'published' &&
+      assessment.evidence.length < minimumPublishedEvidence
+    ) {
+      errors.push(`${prefix}: published assessments require at least two evidence sources`)
     }
 
     assessment.evidence.forEach((evidence, evidenceIndex) => {

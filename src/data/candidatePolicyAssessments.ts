@@ -13,6 +13,12 @@ export interface PolicyEvidence {
   excerpt: string
 }
 
+export type AssessmentStatus =
+  | 'draft'
+  | 'reviewed'
+  | 'published'
+  | 'rejected'
+
 export interface CandidatePolicyAssessment {
   candidateId: string
   policyId: PolicyQuestionId
@@ -20,6 +26,9 @@ export interface CandidatePolicyAssessment {
   rationale: string
   evidence: PolicyEvidence[]
   assessedAt: string
+  status: AssessmentStatus
+  reviewedAt?: string
+  reviewer?: string
 }
 
 export const candidatePolicyAssessments: CandidatePolicyAssessment[] = []
@@ -30,7 +39,9 @@ export function getCandidatePolicyPositions(
   candidateId: string,
 ): CandidatePolicyPositions {
   const assessments = candidatePolicyAssessments.filter(
-    (assessment) => assessment.candidateId === candidateId,
+    (assessment) =>
+      assessment.candidateId === candidateId &&
+      assessment.status === 'published',
   )
 
   const positions: CandidatePolicyPositions['positions'] = {}
