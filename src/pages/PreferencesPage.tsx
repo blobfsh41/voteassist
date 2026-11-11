@@ -4,6 +4,7 @@ import {
   type PolicyScore,
 } from '../data/policies'
 import type { UserProfile } from '../data/profileTypes'
+import { electorates } from '../data/electorates'
 
 interface PreferencesPageProps {
   profile: UserProfile
@@ -11,6 +12,7 @@ interface PreferencesPageProps {
     policyId: PolicyQuestionId,
     update: { score?: PolicyScore | null; importance?: number },
   ) => void
+  onUpdateElectorate: (electorateId: string) => void
 }
 
 const stanceOptions: {
@@ -27,11 +29,45 @@ const stanceOptions: {
 export default function PreferencesPage({
   profile,
   onUpdatePreference,
+  onUpdateElectorate,
 }: PreferencesPageProps) {
   return (
     <main className="content">
       <h1>My preferences</h1>
       <p>Tell VoteAssist which issues matter to you.</p>
+
+      <section className="preference-card">
+        <h2>Your electorate</h2>
+        <p>
+          Select your Victorian state electorate to see candidates
+          contesting your district.
+        </p>
+
+        <label htmlFor="electorate">
+          State electorate
+        </label>
+
+        <select
+          id="electorate"
+          value={profile.electorateId ?? ''}
+          onChange={(event) =>
+            onUpdateElectorate(event.target.value)
+          }
+        >
+          <option value="" disabled>
+            Select your electorate
+          </option>
+
+          {electorates
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((electorate) => (
+              <option key={electorate.id} value={electorate.id}>
+                {electorate.name}
+              </option>
+            ))}
+        </select>
+      </section>
 
       {policyQuestions.map((policy) => {
         const preference =

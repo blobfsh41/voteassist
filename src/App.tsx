@@ -13,6 +13,7 @@ import { updatePolicyPreference } from './lib/policyPreferences'
 import type { PolicyQuestionId } from './data/policies'
 import type { PolicyPreference } from './data/profileTypes'
 import MatchesPage from './pages/MatchesPage'
+import { electorates } from './data/electorates'
 
 function App() {
   const [page, setPage] = useState<Page>('For you')
@@ -38,6 +39,25 @@ function App() {
       },
     }
 
+    setProfile(updatedProfile)
+    saveProfile(updatedProfile)
+  }
+
+  const updateElectorate = (electorateId: string) => {
+    if (!electorates.some(electorate => electorate.id === electorateId)) {
+      return
+    }
+
+    const updatedProfile: UserProfile = {
+      ...profile,
+      electorateId,
+      preferences: {
+        ...profile.preferences,
+        followedCandidates: [],
+      },
+    }
+
+    setSelectedCandidates([])
     setProfile(updatedProfile)
     saveProfile(updatedProfile)
   }
@@ -104,6 +124,7 @@ function App() {
           <PreferencesPage
             profile={profile}
             onUpdatePreference={updatePreference}
+            onUpdateElectorate={updateElectorate}
           />
         )}
 
