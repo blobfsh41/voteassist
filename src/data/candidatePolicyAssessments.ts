@@ -13,6 +13,13 @@ export interface PolicyEvidence {
   excerpt: string
 }
 
+export interface AssessmentReview {
+  reviewer: string
+  reviewedAt: string
+  decision: 'approved' | 'rejected'
+  notes: string
+}
+
 export type AssessmentStatus =
   | 'draft'
   | 'reviewed'
@@ -27,8 +34,8 @@ export interface CandidatePolicyAssessment {
   evidence: PolicyEvidence[]
   assessedAt: string
   status: AssessmentStatus
-  reviewedAt?: string
-  reviewer?: string
+  review?: AssessmentReview
+  rejectionReason?: string
 }
 
 export const candidatePolicyAssessments: CandidatePolicyAssessment[] = []

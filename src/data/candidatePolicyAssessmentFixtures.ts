@@ -17,6 +17,7 @@ export const pilotCandidatePolicyAssessments: CandidatePolicyAssessment[] = [
       },
     ],
     assessedAt: '2026-11-10',
+    status: 'draft',
   },
   {
     candidateId: 'daniel-brooks',
@@ -33,6 +34,7 @@ export const pilotCandidatePolicyAssessments: CandidatePolicyAssessment[] = [
       },
     ],
     assessedAt: '2026-11-10',
+    status: 'draft',
   },
   {
     candidateId: 'aisha-patel',
@@ -49,5 +51,6 @@ export const pilotCandidatePolicyAssessments: CandidatePolicyAssessment[] = [
       },
     ],
     assessedAt: '2026-11-10',
+    status: 'draft',
   },
 ]

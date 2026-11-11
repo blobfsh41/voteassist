@@ -13,6 +13,7 @@ describe('getCandidatePolicyPositions', () => {
       rationale: 'Test rationale',
       evidence: [],
       assessedAt: '2026-11-08',
+      status: 'published',
     })
 
     try {
@@ -35,6 +36,7 @@ describe('getCandidatePolicyPositions', () => {
       rationale: 'Insufficient evidence',
       evidence: [],
       assessedAt: '2026-11-08',
+      status: 'published',
     })
 
     try {
@@ -56,6 +58,7 @@ describe('getCandidatePolicyPositions', () => {
         rationale: 'Insufficient evidence',
         evidence: [],
         assessedAt: '2026-11-08',
+        status: 'published',
       },
       {
         candidateId: 'candidate-1',
@@ -64,6 +67,7 @@ describe('getCandidatePolicyPositions', () => {
         rationale: 'Test rationale',
         evidence: [],
         assessedAt: '2026-11-08',
+        status: 'published',
       },
     )
 

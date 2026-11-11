@@ -16,6 +16,7 @@ const validAssessment: CandidatePolicyAssessment = {
     },
   ],
   assessedAt: '2026-11-10',
+  status: 'draft',
 }
 
 describe('validateCandidatePolicyAssessments', () => {

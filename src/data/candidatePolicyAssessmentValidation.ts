@@ -8,6 +8,7 @@ const policyIds = new Set(policyQuestions.map((policy) => policy.id))
 
 const validScores = new Set([-2, -1, 0, 1, 2])
 const validStatuses = new Set(['draft', 'reviewed', 'published'])
+const validReviewDecisions = new Set(['approved', 'rejected'])
 const minimumPublishedEvidence = 2
 
 function isValidDate(value: string): boolean {
@@ -28,9 +29,15 @@ export function validateCandidatePolicyAssessments(
     const prefix = `Assessment ${index + 1}`
     const assessmentWithReview = assessment as CandidatePolicyAssessment & {
       status?: string
-      reviewerName?: string
-      reviewedAt?: string
+      review?: {
+        reviewer?: string
+        reviewedAt?: string
+        decision?: string
+        rejectionReason?: string
+      }
     }
+
+    const review = assessmentWithReview.review
 
     if (!validStatuses.has(assessmentWithReview.status ?? '')) {
       errors.push(`${prefix}: invalid assessment status`)
@@ -40,26 +47,38 @@ export function validateCandidatePolicyAssessments(
       assessmentWithReview.status === 'reviewed' ||
       assessmentWithReview.status === 'published'
 
-    if (requiresReviewMetadata && !assessmentWithReview.reviewerName?.trim()) {
+    if (requiresReviewMetadata && !review?.reviewer?.trim()) {
       errors.push(`${prefix}: reviewer name is required`)
     }
 
-    if (requiresReviewMetadata && !assessmentWithReview.reviewedAt) {
+    if (requiresReviewMetadata && !review?.reviewedAt) {
       errors.push(`${prefix}: review date is required`)
     }
 
-    if (
-      assessmentWithReview.reviewerName !== undefined &&
-      !assessmentWithReview.reviewerName.trim()
-    ) {
-      errors.push(`${prefix}: reviewer name cannot be empty`)
+    if (review) {
+      if (!review.reviewer?.trim()) {
+        errors.push(`${prefix}: review reviewer is required`)
+      }
+
+      if (!review.reviewedAt || !isValidDate(review.reviewedAt)) {
+        errors.push(`${prefix}: invalid review date`)
+      }
+
+      if (!validReviewDecisions.has(review.decision ?? '')) {
+        errors.push(`${prefix}: invalid review decision`)
+      }
+
+      if (review.decision === 'rejected' && !review.rejectionReason?.trim()) {
+        errors.push(`${prefix}: rejection reason is required`)
+      }
     }
 
     if (
-      assessmentWithReview.reviewedAt !== undefined &&
-      !isValidDate(assessmentWithReview.reviewedAt)
+      (assessmentWithReview.status === 'reviewed' ||
+        assessmentWithReview.status === 'published') &&
+      review?.decision !== 'approved'
     ) {
-      errors.push(`${prefix}: invalid review date`)
+      errors.push(`${prefix}: reviewed assessments require an approved review`)
     }
 
     if (!candidateIds.has(assessment.candidateId)) {
