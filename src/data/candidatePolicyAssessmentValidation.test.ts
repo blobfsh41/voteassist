@@ -4,7 +4,7 @@ import { validateCandidatePolicyAssessments } from './candidatePolicyAssessmentV
 import type { CandidatePolicyAssessment } from './candidatePolicyAssessments'
 
 const validAssessment: CandidatePolicyAssessment = {
-  candidateId: 'maya-chen',
+  candidateId: 'vic-2026-albert-park-dragwidge-georgie',
   policyId: 'housing-supply',
   score: 1,
   rationale: 'Supports additional housing near transport.',
