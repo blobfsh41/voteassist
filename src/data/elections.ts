@@ -1,13 +1,3 @@
-import type { Election } from './electionTypes'
+import { vic2026AssemblyElection } from './generated/vic2026AssemblyElection'
 
-export const elections: Election[] = [
-  {
-    id: 'vic-2026-state',
-    name: '2026 Victorian State Election',
-    type: 'state',
-    jurisdiction: 'Victoria',
-    electionDate: '2026-11-28',
-    status: 'active',
-    electorateIds: [],
-  },
-]
+export const elections = [vic2026AssemblyElection]

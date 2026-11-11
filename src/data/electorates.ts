@@ -1,3 +1,4 @@
-import type { Electorate } from './electionTypes'
 
-export const electorates: Electorate[] = []
+import { vic2026AssemblyElectorates } from './generated/vic2026AssemblyElectorates'
+
+export const electorates = vic2026AssemblyElectorates
