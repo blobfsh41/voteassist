@@ -83,7 +83,13 @@ function App() {
   }
 
   const viewPolicies = (candidateId: string) => {
-    const otherCandidate = candidates.find(
+    if (!profile.electorateId) return
+
+    const electorateCandidates = candidates.filter(
+      candidate => candidate.electorateId === profile.electorateId,
+    )
+
+    const otherCandidate = electorateCandidates.find(
       candidate => candidate.id !== candidateId,
     )
 

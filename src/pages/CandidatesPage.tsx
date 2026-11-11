@@ -49,7 +49,9 @@ export default function CandidatesPage({
       <section className="results-intro">
         <div className="location">
           <Icon name="pin" size={15} />
-          <span>3056 · Brunswick, VIC</span>
+          <span>
+            {electorate?.name ?? 'Electorate not selected'}, VIC
+          </span>
         </div>
         <h1>Meet your local choices.</h1>
         <p>
