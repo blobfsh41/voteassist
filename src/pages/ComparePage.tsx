@@ -4,23 +4,36 @@ import Icon from '../components/Icon'
 import Notice from '../components/Notice'
 import { useState } from 'react'
 import { policyCategories } from '../data/policies'
+import { electorates } from '../data/electorates'
 
 interface ComparePageProps {
   comparison: string[]
+  electorateId: string | null
   onChangeCandidate: (column: number, candidateId: string) => void
 }
 
 export default function ComparePage({
   comparison,
+  electorateId,
   onChangeCandidate,
 }: ComparePageProps) {
   const [changeColumn, setChangeColumn] = useState<number | null>(null)
+  const electorate = electorates.find(
+    item => item.id === electorateId,
+  )
+
+  const visibleCandidates = electorateId
+    ? candidates.filter(
+        candidate => candidate.electorateId === electorateId,
+      )
+    : []
 
   return (
     <main className="content" data-node-id="5:861">
       <section className="compare-intro">
         <div className="eyebrow">
-          <Icon name="pin" size={14} /> BRUNSWICK ELECTORATE
+          <Icon name="pin" size={14} />
+          {electorate?.name.toUpperCase() ?? 'NO ELECTORATE SELECTED'}
         </div>
         <h1>The issues, side by side.</h1>
         <p>
@@ -54,7 +67,7 @@ export default function ComparePage({
 
               {changeColumn === column && (
                 <div className="candidate-menu">
-                  {candidates.map(option => (
+                  {visibleCandidates.map(option => (
                     <button
                       key={option.id}
                       disabled={comparison[1 - column] === option.id}

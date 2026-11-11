@@ -107,6 +107,7 @@ function App() {
         {page === 'Candidates' && (
           <CandidatesPage
             comparison={selectedCandidates}
+            electorateId={profile.electorateId}
             onChangeCandidate={changeCandidate}
             onCompare={() => navigate('Compare')}
             onViewPolicies={viewPolicies}
@@ -116,6 +117,7 @@ function App() {
         {page === 'Compare' && (
           <ComparePage
             comparison={selectedCandidates}
+            electorateId={profile.electorateId}
             onChangeCandidate={changeCandidate}
           />
         )}

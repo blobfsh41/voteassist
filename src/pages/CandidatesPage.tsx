@@ -2,9 +2,11 @@
 import { candidates } from '../data/candidates'
 import Icon from '../components/Icon'
 import Notice from '../components/Notice'
+import { electorates } from '../data/electorates'
 
 interface CandidatesPageProps {
   comparison: string[]
+  electorateId: string | null
   onChangeCandidate: (column: number, candidateId: string) => void
   onViewPolicies: (candidateId: string) => void
   onCompare: () => void
@@ -12,11 +14,22 @@ interface CandidatesPageProps {
 
 export default function CandidatesPage({
   comparison,
+  electorateId,
   onChangeCandidate,
   onViewPolicies,
   onCompare,
 }: CandidatesPageProps) {
   const selected = comparison
+
+  const electorate = electorates.find(
+    item => item.id === electorateId,
+  )
+
+  const visibleCandidates = electorateId
+    ? candidates.filter(
+        candidate => candidate.electorateId === electorateId,
+      )
+    : []
 
   const toggleCandidate = (candidateId: string) => {
     const selectedColumn = selected.indexOf(candidateId)
@@ -40,18 +53,27 @@ export default function CandidatesPage({
         </div>
         <h1>Meet your local choices.</h1>
         <p>
-          Explore the example ballot, then select two candidates to compare
-          their policies.
+          {electorate
+            ? `Explore candidates contesting ${electorate.name}, then select two to compare their policies.`
+            : 'Select your electorate in Preferences to see your local candidates.'}
         </p>
       </section>
 
       <section className="candidate-list">
         <div className="list-meta">
-          <strong>3 illustrative candidates</strong>
-          <span>Demo order · not ranked</span>
+          <strong>{visibleCandidates.length} candidates</strong>
+          <span>2026 Victorian State Election · not ranked</span>
         </div>
 
-        {candidates.map(candidate => (
+        {electorateId && visibleCandidates.length === 0 && (
+          <p>No candidates found for this electorate.</p>
+        )}
+
+        {!electorateId && (
+          <p>Select an electorate in Preferences to see candidates.</p>
+        )}
+
+        {visibleCandidates.map(candidate => (
           <article
             className={`card candidate-card ${
               selected.includes(candidate.id) ? 'selected' : ''

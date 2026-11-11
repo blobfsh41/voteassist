@@ -11,8 +11,7 @@ interface MatchesPageProps {
 
 export default function MatchesPage({ profile }: MatchesPageProps) {
   const preferences = toUserPolicyPreferences(profile)
-  const results = rankAllCandidates(preferences)
-
+  const results = rankAllCandidates(preferences, profile.electorateId)
   const totalImportance = preferences.reduce(
     (total, preference) => total + preference.importance,
     0,
@@ -25,6 +24,16 @@ export default function MatchesPage({ profile }: MatchesPageProps) {
         Compare candidates based on your stated policy positions
         and issue priorities.
       </p>
+
+      {!profile.electorateId && (
+        <section className="match-empty">
+          <h2>Select your electorate first</h2>
+          <p>
+            Choose your Victorian state electorate in Preferences
+            to see candidate matches for your district.
+          </p>
+        </section>
+      )}
 
       <section className="match-summary">
         <strong>

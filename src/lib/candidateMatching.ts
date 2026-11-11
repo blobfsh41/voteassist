@@ -24,8 +24,17 @@ export function matchCandidate(
 
 export function rankAllCandidates(
   preferences: UserPolicyPreference[],
+  electorateId?: string | null,
 ): RankedCandidate[] {
-  const positions = candidates.map((candidate) =>
+  const electorateCandidates = electorateId === undefined
+    ? candidates
+    : electorateId === null
+      ? []
+      : candidates.filter(
+          candidate => candidate.electorateId === electorateId,
+        )
+
+  const positions = electorateCandidates.map(candidate =>
     getValidatedCandidatePolicyPositions(candidate.id),
   )
 
