@@ -43,6 +43,10 @@ export default function ComparePage({
       )
     : []
 
+  const publishedAssessmentCount = candidatePolicyAssessments.filter(
+    assessment => assessment.status === 'published',
+  ).length
+
   return (
     <main className="content" data-node-id="5:861">
       <section className="compare-intro">
@@ -99,6 +103,17 @@ export default function ComparePage({
           )
         })}
       </div>
+
+      {publishedAssessmentCount === 0 && (
+        <section className="assessment-availability" role="status">
+          <strong>Policy assessments are not yet available.</strong>
+          <p>
+            Candidate nomination records are available, but no policy positions
+            have been published and reviewed yet. This comparison therefore
+            cannot establish which candidates support or oppose these issues.
+          </p>
+        </section>
+      )}
 
       {policyCategories.map(category => {
         const questions = policyQuestions.filter(
