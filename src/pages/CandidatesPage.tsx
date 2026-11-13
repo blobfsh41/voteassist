@@ -12,6 +12,19 @@ interface CandidatesPageProps {
   onCompare: () => void
 }
 
+function getCandidateStatusLabel(status: string) {
+  switch (status) {
+    case 'active':
+      return 'Nominated'
+    case 'withdrawn':
+      return 'Withdrawn'
+    case 'former':
+      return 'Former candidate'
+    default:
+      return 'Status unconfirmed'
+  }
+}
+
 export default function CandidatesPage({
   comparison,
   electorateId,
@@ -87,11 +100,11 @@ export default function CandidatesPage({
                 <h2>{candidate.name}</h2>
                 <p>{candidate.party}</p>
                 <p>
-                  {electorate?.name ?? 'Electorate not selected'} · Nomination
-                  status: Listed
+                  {electorate?.name ?? 'Electorate not selected'} ·{' '}
+                  {getCandidateStatusLabel(candidate.status)}
                 </p>
                 <span className="candidate-status-label">
-                  OFFICIAL NOMINATION DATA
+                  VEC NOMINATION RECORD · 9 NOV 2026
                 </span>
               </div>
             </div>
