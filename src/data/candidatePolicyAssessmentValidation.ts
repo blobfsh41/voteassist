@@ -91,7 +91,7 @@ export function validateCandidatePolicyAssessments(
       assessment.score !== null &&
       !validScores.has(assessment.score)
     ) {
-      errors.push(`${prefix}: score must be between -1 and 1`)
+      errors.push(`${prefix}: score must be between -2 and 2`)
     }
 
     const key = `${assessment.candidateId}:${assessment.policyId}`
