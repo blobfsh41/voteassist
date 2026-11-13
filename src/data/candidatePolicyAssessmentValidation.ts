@@ -6,7 +6,7 @@ import type { CandidatePolicyAssessment } from './candidatePolicyAssessments'
 const candidateIds = new Set(candidates.map((candidate) => candidate.id))
 const policyIds = new Set(policyQuestions.map((policy) => policy.id))
 
-const validScores = new Set([-1, 0, 1])
+const validScores = new Set([-2, -1, 0, 1, 2])
 const validStatuses = new Set([
   'draft',
   'reviewed',

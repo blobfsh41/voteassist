@@ -51,6 +51,22 @@ describe('validateCandidatePolicyAssessments', () => {
     ).toEqual([])
   })
 
+  it('accepts a score of -2', () => {
+    expect(
+      validateCandidatePolicyAssessments([
+        { ...validAssessment, score: -2 },
+      ]),
+    ).toEqual([])
+  })
+
+  it('accepts a score of +2', () => {
+    expect(
+      validateCandidatePolicyAssessments([
+        { ...validAssessment, score: 2 },
+      ]),
+    ).toEqual([])
+  })
+
   it('rejects duplicate candidate-policy assessments', () => {
     const errors = validateCandidatePolicyAssessments([
       validAssessment,
@@ -62,12 +78,20 @@ describe('validateCandidatePolicyAssessments', () => {
     )
   })
 
-  it('rejects invalid scores', () => {
+  it('rejects a score of -3', () => {
     const errors = validateCandidatePolicyAssessments([
-      { ...validAssessment, score: 2 },
+      { ...validAssessment, score: -3 } as unknown as CandidatePolicyAssessment,
     ])
 
-    expect(errors).toContain('Assessment 1: score must be between -1 and 1')
+    expect(errors).toContain('Assessment 1: score must be between -2 and 2')
+  })
+
+  it('rejects a score of +3', () => {
+    const errors = validateCandidatePolicyAssessments([
+      { ...validAssessment, score: 3 } as unknown as CandidatePolicyAssessment,
+    ])
+
+    expect(errors).toContain('Assessment 1: score must be between -2 and 2')
   })
 
   it('rejects published assessments without approved review', () => {
