@@ -1,8 +1,7 @@
 
 import { candidates } from '../data/candidates'
-import Icon from '../components/Icon'
-import Notice from '../components/Notice'
 import { electorates } from '../data/electorates'
+import Icon from '../components/Icon'
 
 interface CandidatesPageProps {
   comparison: string[]
@@ -25,6 +24,16 @@ function getCandidateStatusLabel(status: string) {
   }
 }
 
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(part => part[0])
+    .join('')
+    .toUpperCase()
+}
+
 export default function CandidatesPage({
   comparison,
   electorateId,
@@ -32,141 +41,196 @@ export default function CandidatesPage({
   onViewPolicies,
   onCompare,
 }: CandidatesPageProps) {
-  const selected = comparison
-
-  const electorate = electorates.find(
-    item => item.id === electorateId,
-  )
+  const electorate = electorates.find(item => item.id === electorateId)
 
   const visibleCandidates = electorateId
-    ? candidates.filter(
-        candidate => candidate.electorateId === electorateId,
-      )
+    ? candidates.filter(candidate => candidate.electorateId === electorateId)
     : []
 
   const toggleCandidate = (candidateId: string) => {
-    const selectedColumn = selected.indexOf(candidateId)
+    const selectedColumn = comparison.indexOf(candidateId)
 
     if (selectedColumn !== -1) {
       onChangeCandidate(selectedColumn, '')
       return
     }
 
-    if (selected.length >= 2) return
+    if (comparison.length >= 2) return
 
-    onChangeCandidate(selected.length, candidateId)
+    onChangeCandidate(comparison.length, candidateId)
   }
 
+  const selectedCandidates = comparison
+    .map(id => candidates.find(candidate => candidate.id === id))
+    .filter(candidate => candidate !== undefined)
+
   return (
-    <main className="content candidates-page" data-node-id="5:764">
-      <section className="results-intro">
-        <div className="location">
-          <Icon name="pin" size={15} />
-          <span>
-            {electorate?.name ?? 'Electorate not selected'}, VIC
-          </span>
+    <main className="content candidates-page">
+      <section className="candidates-hero">
+        <div>
+          <span className="eyebrow">2026 VICTORIAN STATE ELECTION</span>
+          <h1>Know who is<br />standing in your electorate.</h1>
+          <p>
+            Explore the candidates, understand their affiliations
+            and compare their published policy positions.
+          </p>
         </div>
-        <h1>Meet your local choices.</h1>
-        <p>
-          {electorate
-            ? `Explore candidates contesting ${electorate.name}, then select two to compare their policies.`
-            : 'Select your electorate in Preferences to see your local candidates.'}
-        </p>
+
+        <div className="candidates-location">
+          <Icon name="pin" size={17} />
+          <div>
+            <span>YOUR ELECTORATE</span>
+            <strong>{electorate?.name ?? 'Not selected'}</strong>
+            <small>Victoria, Australia</small>
+          </div>
+        </div>
       </section>
 
-      <section className="candidate-list">
-        <div className="list-meta">
-          <strong>{visibleCandidates.length} candidates</strong>
-          <span>2026 Victorian State Election · not ranked</span>
-        </div>
+      <section className="candidate-directory">
+        <div className="candidate-directory-heading">
+          <div>
+            <span className="eyebrow">THE CANDIDATES</span>
+            <h2>
+              {electorate ? electorate.name : 'Your local candidates'}
+            </h2>
+          </div>
 
-        {electorateId && visibleCandidates.length === 0 && (
-          <p>No candidates found for this electorate.</p>
-        )}
+          <div className="candidate-count">
+            <strong>{visibleCandidates.length}</strong>
+            <span>
+              {visibleCandidates.length === 1 ? 'candidate' : 'candidates'}
+            </span>
+          </div>
+        </div>
 
         {!electorateId && (
-          <p>Select an electorate in Preferences to see candidates.</p>
+          <div className="candidate-empty">
+            <h3>Choose your electorate first.</h3>
+            <p>
+              Select your Legislative Assembly electorate in Preferences
+              to see the candidates contesting your district.
+            </p>
+          </div>
         )}
 
-        {visibleCandidates.map(candidate => (
-          <article
-            className={`card candidate-card ${
-              selected.includes(candidate.id) ? 'selected' : ''
-            }`}
-            key={candidate.id}
-          >
-            <div className="candidate-details">
-              <div>
-                <h2>{candidate.name}</h2>
-                <p>{candidate.party}</p>
-                <p>
-                  {electorate?.name ?? 'Electorate not selected'} ·{' '}
-                  {getCandidateStatusLabel(candidate.status)}
-                </p>
-                <span className="candidate-status-label">
-                  VEC NOMINATION RECORD · 9 NOV 2026
-                </span>
-              </div>
-            </div>
+        {electorateId && visibleCandidates.length === 0 && (
+          <div className="candidate-empty">
+            <h3>No candidates found.</h3>
+            <p>
+              There are currently no candidate records associated with
+              this electorate.
+            </p>
+          </div>
+        )}
 
-            <div className="candidate-actions">
-              <button
-                className="text-link"
-                onClick={() => onViewPolicies(candidate.id)}
-              >
-                View policies <Icon name="arrow" size={14} />
-              </button>
+        {visibleCandidates.length > 0 && (
+          <div className="candidate-grid">
+            {visibleCandidates.map((candidate, index) => {
+              const isSelected = comparison.includes(candidate.id)
+              const selectionDisabled =
+                !isSelected && comparison.length >= 2
 
-              <button
-                className="select-button"
-                onClick={() => toggleCandidate(candidate.id)}
-                aria-pressed={selected.includes(candidate.id)}
-                disabled={
-                  !selected.includes(candidate.id) && selected.length >= 2
-                }
-              >
-                <span
-                  className={`checkbox ${
-                    selected.includes(candidate.id) ? 'checked' : ''
+              return (
+                <article
+                  className={`candidate-profile ${
+                    isSelected ? 'is-selected' : ''
                   }`}
+                  key={candidate.id}
                 >
-                  {selected.includes(candidate.id) && (
-                    <Icon name="check" size={15} />
-                  )}
-                </span>
-                {selected.includes(candidate.id) ? 'Selected' : 'Compare'}
-              </button>
-            </div>
-          </article>
-        ))}
+                  <div className="candidate-profile-top">
+                    <span className="candidate-index">
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+
+                    <span
+                      className={`candidate-selection-indicator ${
+                        isSelected ? 'active' : ''
+                      }`}
+                    >
+                      {isSelected ? (
+                        <>
+                          <Icon name="check" size={13} />
+                          Selected
+                        </>
+                      ) : (
+                        'Candidate'
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="candidate-monogram" aria-hidden="true">
+                    {getInitials(candidate.name)}
+                  </div>
+
+                  <div className="candidate-profile-details">
+                    <h3>{candidate.name}</h3>
+                    <p className="candidate-party">{candidate.party}</p>
+                    <span className="candidate-status">
+                      {getCandidateStatusLabel(candidate.status)}
+                    </span>
+                  </div>
+
+                  <div className="candidate-profile-footer">
+                    <button
+                      className="candidate-view-link"
+                      onClick={() => onViewPolicies(candidate.id)}
+                    >
+                      View policy positions
+                      <Icon name="arrow" size={15} />
+                    </button>
+
+                    <button
+                      className={`candidate-compare-button ${
+                        isSelected ? 'selected' : ''
+                      }`}
+                      onClick={() => toggleCandidate(candidate.id)}
+                      disabled={selectionDisabled}
+                      aria-pressed={isSelected}
+                      aria-label={
+                        isSelected
+                          ? `Remove ${candidate.name} from comparison`
+                          : `Add ${candidate.name} to comparison`
+                      }
+                    >
+                      {isSelected ? 'Remove' : 'Select'}
+                    </button>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        )}
       </section>
 
-      <section className="card selection-card">
-        <div aria-live="polite" aria-atomic="true">
-          <span>
-            {selected.length
-              ? selected
-                  .map(
-                    id =>
-                      candidates.find(candidate => candidate.id === id)?.name ??
-                      id,
-                  )
-                  .join(' + ')
-              : 'Choose two candidates'}
-          </span>
-          <strong>{selected.length} of 2 selected</strong>
+      <section className="candidate-comparison-bar">
+        <div className="comparison-bar-info">
+          <span className="eyebrow">YOUR COMPARISON</span>
+
+          <strong>
+            {selectedCandidates.length === 0
+              ? 'Select two candidates to begin.'
+              : selectedCandidates.map(candidate => candidate.name).join(' vs ')}
+          </strong>
+
+          <small>{comparison.length} of 2 candidates selected</small>
         </div>
 
         <button
-          className="primary-button"
-          disabled={selected.length !== 2}
+          className="candidate-comparison-action"
+          disabled={comparison.length !== 2}
           onClick={onCompare}
         >
-          Compare candidates <Icon name="columns" size={18} />
+          Compare candidates
+          <Icon name="arrow" size={16} />
         </button>
       </section>
 
-      <Notice />
+      <p className="candidate-source-note">
+        Candidate names and affiliations are based on VEC nomination
+        records dated 9 November 2026. Nomination information is
+        separate from policy assessments. VoteAssist is not an
+        official electoral service or a source of voting advice.
+      </p>
     </main>
   )
 }
