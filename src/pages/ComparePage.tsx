@@ -3,13 +3,28 @@ import { candidates } from '../data/candidates'
 import Icon from '../components/Icon'
 import Notice from '../components/Notice'
 import { useState } from 'react'
-import { policyCategories } from '../data/policies'
+import { policyCategories, policyQuestions } from '../data/policies'
+import { candidatePolicyAssessments } from '../data/candidatePolicyAssessments'
 import { electorates } from '../data/electorates'
 
 interface ComparePageProps {
   comparison: string[]
   electorateId: string | null
   onChangeCandidate: (column: number, candidateId: string) => void
+}
+
+function getScoreLabel(score: number | null) {
+  if (score === null) return 'Insufficient evidence'
+
+  const labels: Record<number, string> = {
+    [-2]: 'Strongly opposes',
+    [-1]: 'Somewhat opposes',
+    [0]: 'Neutral or mixed',
+    [1]: 'Somewhat supports',
+    [2]: 'Strongly supports',
+  }
+
+  return labels[score] ?? 'Unknown position'
 }
 
 export default function ComparePage({
@@ -52,7 +67,6 @@ export default function ComparePage({
 
           return (
             <div className="card compare-person" key={candidateId}>
-              <img src={candidate.image} alt={candidate.name} />
               <h2>{candidate.name}</h2>
               <p>{candidate.party}</p>
 
@@ -86,38 +100,79 @@ export default function ComparePage({
         })}
       </div>
 
-      {policyCategories.map(category => (
-        <section className="card issue-card" key={category.id}>
-          <div className="issue-heading">
-            <Icon name={category.icon} size={19} />
-            <h2>{category.title}</h2>
-          </div>
+      {policyCategories.map(category => {
+        const questions = policyQuestions.filter(
+          question => question.categoryId === category.id,
+        )
 
-          <p className="issue-description">{category.description}</p>
+        return (
+          <section className="card issue-card" key={category.id}>
+            <div className="issue-heading">
+              <Icon name={category.icon} size={19} />
+              <h2>{category.title}</h2>
+            </div>
 
-          <div className="policy-grid">
-            {comparison.map(candidateId => {
-              const candidate = candidates.find(
-                candidate => candidate.id === candidateId,
-              )
-              const policy = candidate?.policies[category.id]
+            <p className="issue-description">{category.description}</p>
 
-              return (
-                <div className="policy" key={candidateId}>
-                  {policy ? (
-                    <>
-                      <h3>{policy.title}</h3>
-                      <p>{policy.text}</p>
-                    </>
-                  ) : (
-                    <p>No published position available.</p>
-                  )}
+            {questions.map(question => (
+              <div className="comparison-question" key={question.id}>
+                <h3>{question.title}</h3>
+                <p className="question-proposition">
+                  {question.proposition}
+                </p>
+
+                <div className="policy-grid">
+                  {comparison.map(candidateId => {
+                    const assessment = candidatePolicyAssessments.find(
+                      item =>
+                        item.candidateId === candidateId &&
+                        item.policyId === question.id &&
+                        item.status === 'published',
+                    )
+
+                    return (
+                      <div className="policy" key={candidateId}>
+                        {assessment ? (
+                          <>
+                            <strong>
+                              {getScoreLabel(assessment.score)}
+                            </strong>
+
+                            <p>{assessment.rationale}</p>
+
+                            <div className="assessment-evidence">
+                              <strong>Evidence</strong>
+                              {assessment.evidence.map((source, index) => (
+                                <p key={`${source.sourceUrl}-${index}`}>
+                                  <a
+                                    href={source.sourceUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {source.sourceTitle}
+                                  </a>
+                                  {source.publishedAt &&
+                                    ` · ${source.publishedAt}`}
+                                </p>
+                              ))}
+                            </div>
+
+                            <small>
+                              Assessed {assessment.assessedAt}
+                            </small>
+                          </>
+                        ) : (
+                          <p>No published assessment available.</p>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
-              )
-            })}
-          </div>
-        </section>
-      ))}
+              </div>
+            ))}
+          </section>
+        )
+      })}
 
       <div className="guidance">
         <div>
