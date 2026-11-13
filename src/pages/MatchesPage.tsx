@@ -35,6 +35,31 @@ export default function MatchesPage({ profile }: MatchesPageProps) {
         </section>
       )}
 
+      <section className="match-explanation">
+        <h2>Understanding your results</h2>
+        <p>
+          <strong>Alignment range:</strong> The lowest and highest
+          possible alignment scores, accounting for policies that
+          have not yet been assessed. A wider range means more
+          uncertainty.
+        </p>
+        <p>
+          <strong>Coverage:</strong> The proportion of your answered
+          issues that have a candidate assessment.
+        </p>
+        <p>
+          <strong>Weighted coverage:</strong> Coverage adjusted for
+          how important each issue is to you. Missing assessments
+          on issues you care about more reduce this figure more.
+        </p>
+        <p>
+          <strong>Important:</strong> Alignment measures similarity
+          between your stated preferences and available policy
+          assessments. It is not an endorsement or a prediction of
+          how a candidate will govern.
+        </p>
+      </section>
+
       <section className="match-summary">
         <strong>
           {preferences.length} of {policyQuestions.length} issues answered

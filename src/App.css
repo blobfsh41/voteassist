@@ -1121,3 +1121,19 @@ img {
     margin-top: 32px;
   }
 }
+
+.match-explanation {
+  max-width: 760px;
+  margin: 32px 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.match-explanation h2 {
+  margin-top: 0;
+}
+
+.match-explanation p {
+  line-height: 1.65;
+}
