@@ -1,117 +1,146 @@
 
-import storyImage from '../assets/story.png'
-import { stories } from '../data/stories'
-import Icon from '../components/Icon'
-import Notice from '../components/Notice'
-import { useState } from 'react'
+import { candidates } from '../data/candidates'
+import { electorates } from '../data/electorates'
 
 export default function ForYouPage() {
-  const [filter, setFilter] = useState('')
-  const [openStory, setOpenStory] = useState<string | null>(null)
-
-  const visibleStories = filter
-    ? stories.filter(story =>
-        story.source.toLowerCase().includes(filter.toLowerCase()),
-      )
-    : stories
-    
   return (
-    <main className="content for-you-page" data-node-id="5:704">
-      <section className="intro">
-        <div className="eyebrow">
-          VOTEASSIST · 2026 VICTORIAN STATE ELECTION
-        </div>
-        <h1>
-          Understand your choices.
-          <br />
-          Make your vote count.
-        </h1>
-        <p>
-          Explore candidates, compare their policy positions, and understand
-          how their priorities align with yours.
-        </p>
-        <div className="chips">
-          {['Housing', 'Transport', 'Local spaces'].map(issue => (
-            <button
-              key={issue}
-              className={filter === issue ? 'chip active' : 'chip'}
-              onClick={() => setFilter(filter === issue ? '' : issue)}
-            >
-              {issue}
-            </button>
-          ))}
-        </div>
-      </section>
+    <main className="content for-you-page">
+      <section className="home-hero">
+        <div className="home-hero-copy">
+          <span className="eyebrow">
+            VOTEASSIST / 2026 VICTORIAN STATE ELECTION
+          </span>
 
-      {(!filter || filter === 'Housing') && (
-        <article className="card featured" data-node-id="5:725">
-          <div className="card-meta">
-            <span>Lorem Daily - Housing</span>
-            <span>Today</span>
-          </div>
-          <img
-            className="story-image"
-            src={storyImage}
-            alt="A tree-lined Brunswick street with a tram"
-          />
-          <h2>New housing plan proposed for Brunswick precinct</h2>
+          <h1>
+            Your vote.
+            <br />
+            Your priorities.
+            <br />
+            <span>Make an informed choice.</span>
+          </h1>
+
           <p>
-            A draft proposal would add more affordable homes near tram routes
-            while keeping community spaces intact. Candidates are already
-            responding with different ideas on density and resident input.
+            Understand the candidates contesting your electorate.
+            Compare their positions on the issues that matter to you,
+            using evidence rather than political advertising.
           </p>
-          <div className="story-footer">
-            <span>4 min read</span>
-            <button
-              className="text-link muted-link"
-              onClick={() =>
-                setOpenStory(openStory === 'featured' ? null : 'featured')
-              }
-            >
-              Read story <Icon name="arrow" size={14} />
-            </button>
-          </div>
-          {openStory === 'featured' && (
-            <p className="expanded">
-              This is an illustrative story created to show how local reporting
-              could appear in VoteAssist.
-            </p>
-          )}
-        </article>
-      )}
-
-      <section className="updates" data-node-id="5:737">
-        <div className="section-heading">
-          <h2>Latest updates</h2>
-          <span>Illustrative news</span>
         </div>
 
-        {visibleStories.map(story => (
-          <article className="card news-card" key={story.title}>
-            <div className="card-meta">
-              <span>{story.source}</span>
-              <span>{story.date}</span>
-            </div>
-            <h3>{story.title}</h3>
-            <p>{story.text}</p>
-            <button
-              className="text-link muted-link"
-              onClick={() =>
-                setOpenStory(openStory === story.title ? null : story.title)
-              }
-            >
-              Open article <Icon name="arrow" size={14} />
-            </button>
-            {openStory === story.title && (
-              <p className="expanded">
-                This is an illustrative update, not a real news article.
-              </p>
-            )}
-          </article>
-        ))}
+        <aside className="home-hero-aside">
+          <span className="home-aside-label">THE PURPOSE</span>
+          <p>
+            Politics can be difficult to navigate. VoteAssist is
+            designed to make candidate policies easier to understand
+            and compare.
+          </p>
+          <div className="home-aside-rule" />
+          <span className="home-aside-foot">
+            Independent in presentation. Evidence-led in assessment.
+          </span>
+        </aside>
       </section>
 
-      <Notice news />
+      <section className="home-overview">
+        <div className="home-section-heading">
+          <div>
+            <span className="eyebrow">GETTING STARTED</span>
+            <h2>Three steps to a clearer choice.</h2>
+          </div>
+          <p>
+            Start with your electorate, identify your priorities,
+            then examine the candidates.
+          </p>
+        </div>
+
+        <div className="home-steps">
+          <article className="home-step">
+            <span className="home-step-number">01</span>
+            <h3>Choose your electorate</h3>
+            <p>
+              Find the candidates contesting your Victorian
+              Legislative Assembly district.
+            </p>
+          </article>
+
+          <article className="home-step">
+            <span className="home-step-number">02</span>
+            <h3>Set your priorities</h3>
+            <p>
+              Tell VoteAssist which policy positions you support
+              and how important each issue is to you.
+            </p>
+          </article>
+
+          <article className="home-step">
+            <span className="home-step-number">03</span>
+            <h3>Compare the candidates</h3>
+            <p>
+              Examine published policy assessments, their supporting
+              evidence and areas where information is unavailable.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="home-data">
+        <div>
+          <span className="eyebrow">THE ELECTION</span>
+          <h2>Start with the candidates.</h2>
+          <p>
+            VoteAssist uses Victorian Electoral Commission
+            nomination information as its starting point.
+            Candidate policy positions are assessed separately
+            and are only displayed when published.
+          </p>
+        </div>
+
+        <div className="home-data-stat">
+          <strong>{candidates.length.toLocaleString('en-AU')}</strong>
+          <span>Assembly candidate records</span>
+          <div className="home-data-divider" />
+          <strong>{electorates.length}</strong>
+          <span>Assembly electorates</span>
+        </div>
+      </section>
+
+      <section className="home-principles">
+        <span className="eyebrow">OUR APPROACH</span>
+        <h2>Information, not persuasion.</h2>
+
+        <div className="home-principles-grid">
+          <div>
+            <h3>Evidence matters</h3>
+            <p>
+              Policy assessments must be supported by sources.
+              A candidate's position should never be guessed from
+              their party affiliation.
+            </p>
+          </div>
+
+          <div>
+            <h3>Unknown means unknown</h3>
+            <p>
+              Missing evidence is not the same as disagreement.
+              Unassessed positions should remain clearly identified.
+            </p>
+          </div>
+
+          <div>
+            <h3>You make the decision</h3>
+            <p>
+              VoteAssist helps you understand differences between
+              candidates. It does not tell you who to vote for.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <p className="home-disclaimer">
+        VoteAssist is an independent information tool, not an
+        official electoral service or a source of voting advice.
+        Candidate nomination information and policy assessments
+        have separate sources and review processes.
+      </p>
     </main>
   )
 }
