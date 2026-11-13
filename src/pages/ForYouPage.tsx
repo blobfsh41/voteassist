@@ -16,7 +16,7 @@ export default function ForYouPage() {
     : stories
     
   return (
-    <main className="content" data-node-id="5:704">
+    <main className="content for-you-page" data-node-id="5:704">
       <section className="intro">
         <div className="eyebrow">
           <Icon name="pin" size={14} /> BRUNSWICK ELECTORATE

@@ -1062,3 +1062,31 @@ img {
   height: auto;
   object-fit: contain;
 }
+
+/* For You: desktop editorial layout */
+@media (min-width: 1000px) {
+  .for-you-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
+    column-gap: 48px;
+    align-items: start;
+  }
+
+  .for-you-page > .intro {
+    grid-column: 1 / -1;
+  }
+
+  .for-you-page > .featured {
+    grid-column: 1;
+    margin-top: 0;
+  }
+
+  .for-you-page > .updates {
+    grid-column: 2;
+    margin-top: 0;
+  }
+
+  .for-you-page > .notice {
+    grid-column: 1 / -1;
+  }
+}
