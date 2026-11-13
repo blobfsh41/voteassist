@@ -1039,17 +1039,6 @@
   }
 }
 
-@media (min-width: 761px) {
-  .content > * {
-    width: 100%;
-    max-width: none;
-  }
-
-  .content > * > * {
-    max-width: none;
-  }
-}
-
 img {
   image-rendering: auto;
   height: auto;

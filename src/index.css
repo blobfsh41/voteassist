@@ -1,32 +1,36 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap');
 
 :root {
-  font-family: 'Inter', sans-serif;
-  color: #1d2935;
-  background: #f7f6f2;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  --color-paper: #f7f6f2;
+  /* Colours */
+  --color-paper: #f8f7f3;
   --color-surface: #fffefa;
-  --color-ink: #1d2935;
-  --color-muted: #68717a;
-  --color-subtle: #92989c;
-  --color-border: #deded8;
-  --color-border-strong: #c9c9c1;
-  --color-plum: #65536f;
-  --color-plum-dark: #51415b;
-  --color-plum-light: #eee9f0;
+  --color-ink: #202b36;
+  --color-muted: #626d77;
+  --color-subtle: #899199;
+  --color-border: #e5e2dc;
+  --color-border-strong: #d2cec6;
+
+  --color-plum: #685473;
+  --color-plum-dark: #51415d;
+  --color-plum-light: #eee9f1;
+
   --color-positive: #386b55;
   --color-negative: #9a514b;
 
+  /* Typography */
   --font-editorial: 'Newsreader', Georgia, serif;
   --font-interface: 'Inter', sans-serif;
 
+  /* Layout */
   --content-width: 1440px;
-  --page-gutter: clamp(28px, 4vw, 64px);
+  --page-gutter: clamp(24px, 5vw, 80px);
+  --header-height: 76px;
+
+  /* Shape and depth */
+  --radius-small: 4px;
+  --radius-medium: 8px;
+  --shadow-menu: 0 12px 32px rgb(32 43 54 / 10%);
 }
 
 * {
@@ -36,6 +40,10 @@
 html {
   min-width: 320px;
   scroll-behavior: smooth;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -43,14 +51,10 @@ body {
   min-height: 100vh;
   margin: 0;
   background: var(--color-paper);
-}
-
-body,
-button,
-input,
-select,
-textarea {
+  color: var(--color-ink);
   font-family: var(--font-interface);
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 button,
@@ -64,17 +68,13 @@ button {
   color: inherit;
 }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid var(--color-plum);
-  outline-offset: 3px;
-}
-
 button:disabled {
   cursor: not-allowed;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-plum);
+  outline-offset: 3px;
 }
 
 h1,
@@ -85,10 +85,33 @@ p {
   margin: 0;
 }
 
+h1,
+h2,
+h3 {
+  color: var(--color-ink);
+}
+
 a {
   color: inherit;
 }
 
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 #root {
   min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
