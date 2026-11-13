@@ -86,7 +86,13 @@ export default function CandidatesPage({
               <div>
                 <h2>{candidate.name}</h2>
                 <p>{candidate.party}</p>
-                <span>ILLUSTRATIVE CANDIDATE</span>
+                <p>
+                  {electorate?.name ?? 'Electorate not selected'} · Nomination
+                  status: Listed
+                </p>
+                <span className="candidate-status-label">
+                  OFFICIAL NOMINATION DATA
+                </span>
               </div>
             </div>
 
