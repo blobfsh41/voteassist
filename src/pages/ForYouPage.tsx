@@ -19,16 +19,16 @@ export default function ForYouPage() {
     <main className="content for-you-page" data-node-id="5:704">
       <section className="intro">
         <div className="eyebrow">
-          <Icon name="pin" size={14} /> BRUNSWICK ELECTORATE
+          VOTEASSIST · 2026 VICTORIAN STATE ELECTION
         </div>
         <h1>
-          News for you.
+          Understand your choices.
           <br />
-          Brunswick electorate.
+          Make your vote count.
         </h1>
         <p>
-          Local reporting and policy updates tailored to your electorate and
-          the issues you care about. No endorsements, just clear context.
+          Explore candidates, compare their policy positions, and understand
+          how their priorities align with yours.
         </p>
         <div className="chips">
           {['Housing', 'Transport', 'Local spaces'].map(issue => (

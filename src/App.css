@@ -1090,3 +1090,34 @@ img {
     grid-column: 1 / -1;
   }
 }
+
+/* Candidates: desktop grid */
+@media (min-width: 1000px) {
+  .candidates-page .candidate-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 32px;
+    align-items: start;
+  }
+
+  .candidates-page .list-meta {
+    grid-column: 1 / -1;
+  }
+
+  .candidates-page .candidate-card {
+    min-width: 0;
+    margin: 0;
+  }
+
+  .candidates-page .candidate-details {
+    align-items: flex-start;
+  }
+
+  .candidates-page .candidate-actions {
+    flex-wrap: wrap;
+  }
+
+  .candidates-page .selection-card {
+    margin-top: 32px;
+  }
+}

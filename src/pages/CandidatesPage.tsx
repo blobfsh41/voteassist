@@ -45,7 +45,7 @@ export default function CandidatesPage({
   }
 
   return (
-    <main className="content" data-node-id="5:764">
+    <main className="content candidates-page" data-node-id="5:764">
       <section className="results-intro">
         <div className="location">
           <Icon name="pin" size={15} />
@@ -83,7 +83,6 @@ export default function CandidatesPage({
             key={candidate.id}
           >
             <div className="candidate-details">
-              <img src={candidate.image} alt={candidate.name} />
               <div>
                 <h2>{candidate.name}</h2>
                 <p>{candidate.party}</p>
