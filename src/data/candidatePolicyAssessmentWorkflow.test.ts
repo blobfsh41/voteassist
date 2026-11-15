@@ -68,6 +68,36 @@ describe('candidate policy assessment workflow', () => {
     ).toThrow()
   })
 
+  it('rejects approval of an unknown candidate', () => {
+    expect(() =>
+      approveAssessment(
+        makeAssessment({ candidateId: 'unknown-candidate' }),
+        'reviewer-1',
+        REVIEWED_AT,
+      ),
+    ).toThrow('unknown candidate')
+  })
+
+  it('rejects approval of an invalid score', () => {
+    expect(() =>
+      approveAssessment(
+        makeAssessment({ score: 3 as CandidatePolicyAssessment['score'] }),
+        'reviewer-1',
+        REVIEWED_AT,
+      ),
+    ).toThrow('score must be between -2 and 2')
+  })
+
+  it('rejects approval without evidence', () => {
+    expect(() =>
+      approveAssessment(
+        makeAssessment({ evidence: [] }),
+        'reviewer-1',
+        REVIEWED_AT,
+      ),
+    ).toThrow('at least one evidence source is required')
+  })
+
   it('changes a reviewed assessment to published', () => {
     const reviewed = approveAssessment(
       makeAssessment(),
@@ -102,6 +132,21 @@ describe('candidate policy assessment workflow', () => {
 
   it('rejects publishing an unapproved assessment', () => {
     expect(() => publishAssessment(makeAssessment())).toThrow()
+  })
+
+  it('rejects publication if evidence becomes invalid after approval', () => {
+    const reviewed = approveAssessment(
+      makeAssessment(),
+      'reviewer-1',
+      REVIEWED_AT,
+    )
+
+    expect(() =>
+      publishAssessment({
+        ...reviewed,
+        evidence: [],
+      }),
+    ).toThrow()
   })
 
   it('records a rejection and its reason', () => {
