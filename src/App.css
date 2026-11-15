@@ -35,22 +35,8 @@
 
 
 
-.updates {
-  margin-top: 52px;
-}
 
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
 
-.section-heading {
-  margin-bottom: 18px;
-  padding-bottom: 13px;
-  border-bottom: 1px solid var(--color-border-strong);
-}
 
 .section-heading h2 {
   font-family: var(--font-editorial);
@@ -139,9 +125,6 @@
 
 
 
-  .updates {
-    margin-top: 38px;
-  }
 
 
   .compare-headings {
