@@ -121,7 +121,7 @@
   text-transform: uppercase;
 }
 
-.eyebrowsvg,
+.eyebrow svg,
 .location svg {
   color: var(--color-plum);
   flex: none;
