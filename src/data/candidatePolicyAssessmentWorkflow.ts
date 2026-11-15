@@ -3,6 +3,7 @@ import type {
   CandidatePolicyAssessment,
   AssessmentReview,
 } from './candidatePolicyAssessments'
+import { validateCandidatePolicyAssessments } from './candidatePolicyAssessmentValidation'
 
 function createReview(
   reviewer: string,
@@ -30,6 +31,16 @@ function createReview(
   }
 }
 
+function assertValidAssessment(
+  assessment: CandidatePolicyAssessment,
+): void {
+  const errors = validateCandidatePolicyAssessments([assessment])
+
+  if (errors.length > 0) {
+    throw new Error(errors.join('\n'))
+  }
+}
+
 export function approveAssessment(
   assessment: CandidatePolicyAssessment,
   reviewer: string,
@@ -40,17 +51,23 @@ export function approveAssessment(
     throw new Error('Only draft assessments can be reviewed')
   }
 
-  return {
+  const review = createReview(
+    reviewer,
+    reviewedAt,
+    'approved',
+    notes,
+  )
+
+  const reviewedAssessment: CandidatePolicyAssessment = {
     ...assessment,
     status: 'reviewed',
     reviewStatus: 'approved',
-    review: createReview(
-      reviewer,
-      reviewedAt,
-      'approved',
-      notes,
-    ),
+    review,
   }
+
+  assertValidAssessment(reviewedAssessment)
+
+  return reviewedAssessment
 }
 
 export function publishAssessment(
@@ -68,13 +85,19 @@ export function publishAssessment(
   }
 
   if (assessment.evidence.length < 2) {
-    throw new Error('Published assessments require at least two evidence sources')
+    throw new Error(
+      'Published assessments require at least two evidence sources',
+    )
   }
 
-  return {
+  const publishedAssessment: CandidatePolicyAssessment = {
     ...assessment,
     status: 'published',
   }
+
+  assertValidAssessment(publishedAssessment)
+
+  return publishedAssessment
 }
 
 export function rejectAssessment(

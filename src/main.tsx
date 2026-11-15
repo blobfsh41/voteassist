@@ -7,6 +7,7 @@ import './styles/candidates.css'
 import './styles/compare.css'
 import './styles/preferences.css'
 import './styles/matches.css'
+import './data/candidateRegistry'
 import './App.css'
 import App from './App.tsx'
 
