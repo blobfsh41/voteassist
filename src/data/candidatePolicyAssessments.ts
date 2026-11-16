@@ -39,14 +39,16 @@ export interface CandidatePolicyAssessment {
   rejectionReason?: string
 }
 
-export const candidatePolicyAssessments: CandidatePolicyAssessment[] = []
+export const candidatePolicyAssessments: readonly CandidatePolicyAssessment[] = []
 
 
 
 export function getCandidatePolicyPositions(
   candidateId: string,
+  assessmentCollection: readonly CandidatePolicyAssessment[] =
+    candidatePolicyAssessments,
 ): CandidatePolicyPositions {
-  const assessments = candidatePolicyAssessments.filter(
+  const assessments = assessmentCollection.filter(
     (assessment) =>
       assessment.candidateId === candidateId &&
       assessment.status === 'published',

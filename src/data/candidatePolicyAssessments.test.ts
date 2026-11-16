@@ -1,82 +1,63 @@
+
 import { describe, expect, it } from 'vitest'
 import {
-  candidatePolicyAssessments,
   getCandidatePolicyPositions,
 } from './candidatePolicyAssessments'
+import type { CandidatePolicyAssessment } from './candidatePolicyAssessments'
+
+const makeAssessment = (
+  overrides: Partial<CandidatePolicyAssessment> = {},
+): CandidatePolicyAssessment => ({
+  candidateId: 'candidate-1',
+  policyId: 'housing-supply',
+  score: 2,
+  rationale: 'Test rationale',
+  evidence: [],
+  assessedAt: '2026-11-08',
+  status: 'published',
+  ...overrides,
+})
 
 describe('getCandidatePolicyPositions', () => {
   it('returns numerical positions for the requested candidate', () => {
-    candidatePolicyAssessments.push({
-      candidateId: 'candidate-1',
-      policyId: 'housing-supply',
-      score: 2,
-      rationale: 'Test rationale',
-      evidence: [],
-      assessedAt: '2026-11-08',
-      status: 'published',
-    })
+    const assessments = [makeAssessment()]
 
-    try {
-      expect(getCandidatePolicyPositions('candidate-1')).toEqual({
-        candidateId: 'candidate-1',
-        positions: {
-          'housing-supply': 2,
-        },
-      })
-    } finally {
-      candidatePolicyAssessments.pop()
-    }
+    expect(
+      getCandidatePolicyPositions('candidate-1', assessments),
+    ).toEqual({
+      candidateId: 'candidate-1',
+      positions: {
+        'housing-supply': 2,
+      },
+    })
   })
 
   it('omits assessments with insufficient evidence', () => {
-    candidatePolicyAssessments.push({
-      candidateId: 'candidate-1',
-      policyId: 'housing-supply',
-      score: null,
-      rationale: 'Insufficient evidence',
-      evidence: [],
-      assessedAt: '2026-11-08',
-      status: 'published',
-    })
+    const assessments = [
+      makeAssessment({
+        score: null,
+        rationale: 'Insufficient evidence',
+      }),
+    ]
 
-    try {
-      expect(getCandidatePolicyPositions('candidate-1')).toEqual({
-        candidateId: 'candidate-1',
-        positions: {},
-      })
-    } finally {
-      candidatePolicyAssessments.pop()
-    }
+    expect(
+      getCandidatePolicyPositions('candidate-1', assessments),
+    ).toEqual({
+      candidateId: 'candidate-1',
+      positions: {},
+    })
   })
 
   it('rejects duplicate assessments even when one score is null', () => {
-    candidatePolicyAssessments.push(
-      {
-        candidateId: 'candidate-1',
-        policyId: 'housing-supply',
-        score: null,
-        rationale: 'Insufficient evidence',
-        evidence: [],
-        assessedAt: '2026-11-08',
-        status: 'published',
-      },
-      {
-        candidateId: 'candidate-1',
-        policyId: 'housing-supply',
-        score: 2,
-        rationale: 'Test rationale',
-        evidence: [],
-        assessedAt: '2026-11-08',
-        status: 'published',
-      },
-    )
+    const assessments = [
+      makeAssessment({ score: null }),
+      makeAssessment({ score: 2 }),
+    ]
 
-    try {
-      expect(() => getCandidatePolicyPositions('candidate-1')).toThrow(
-        'Duplicate assessment for candidate-1: housing-supply',
-      )
-    } finally {
-      candidatePolicyAssessments.splice(-2)
-    }
+    expect(() =>
+      getCandidatePolicyPositions('candidate-1', assessments),
+    ).toThrow(
+      'Duplicate assessment for candidate-1: housing-supply',
+    )
   })
 })

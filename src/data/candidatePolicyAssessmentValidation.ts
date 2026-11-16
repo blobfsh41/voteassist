@@ -25,7 +25,7 @@ function isValidDate(value: string): boolean {
 }
 
 export function validateCandidatePolicyAssessments(
-  assessments: CandidatePolicyAssessment[],
+  assessments: readonly CandidatePolicyAssessment[],
 ): string[] {
   const errors: string[] = []
   const seen = new Set<string>()
@@ -49,6 +49,7 @@ export function validateCandidatePolicyAssessments(
       errors.push(`${prefix}: invalid assessment status`)
     }
 
+
     if (review) {
       if (!review.reviewer?.trim()) {
         errors.push(`${prefix}: review reviewer is required`)
@@ -70,14 +71,34 @@ export function validateCandidatePolicyAssessments(
       }
     }
 
+    if (reviewStatus !== undefined && reviewStatus !== 'pending' &&
+        reviewStatus !== 'approved' && reviewStatus !== 'rejected') {
+      errors.push(`${prefix}: invalid review status`)
+    }
+
+    if (reviewStatus === 'approved' && review?.decision !== 'approved') {
+      errors.push(`${prefix}: approved review status requires approved decision`)
+    }
+
+    if (reviewStatus === 'rejected' && review?.decision !== 'rejected') {
+      errors.push(`${prefix}: rejected review status requires rejected decision`)
+    }
+
     if (
       (assessmentWithReview.status === 'reviewed' ||
         assessmentWithReview.status === 'published') &&
-      reviewStatus !== 'approved' &&
-      review?.decision !== 'approved'
+      (reviewStatus !== 'approved' || review?.decision !== 'approved')
     ) {
       errors.push(`${prefix}: published assessments require approved review`)
     }
+
+    if (
+      assessmentWithReview.status === 'rejected' &&
+      (reviewStatus !== 'rejected' || review?.decision !== 'rejected')
+    ) {
+      errors.push(`${prefix}: rejected assessments require rejected review`)
+    }
+
 
     if (!candidateIds.has(assessment.candidateId)) {
       errors.push(`${prefix}: unknown candidate`)

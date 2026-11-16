@@ -129,6 +129,12 @@ describe('validateCandidatePolicyAssessments', () => {
           ...validAssessment,
           status: 'published',
           reviewStatus: 'approved',
+          review: {
+            reviewer: 'reviewer-1',
+            reviewedAt: '2026-11-15',
+            decision: 'approved',
+            notes: 'Evidence reviewed.',
+          },
           evidence: [
             ...validAssessment.evidence,
             {
@@ -137,7 +143,7 @@ describe('validateCandidatePolicyAssessments', () => {
               excerpt: 'Supports housing near transport corridors.',
             },
           ],
-        } as CandidatePolicyAssessment,
+        },
       ]),
     ).toEqual([])
   })
@@ -149,9 +155,79 @@ describe('validateCandidatePolicyAssessments', () => {
           ...validAssessment,
           score: null,
           status: 'rejected',
+          reviewStatus: 'rejected',
+          review: {
+            reviewer: 'reviewer-1',
+            reviewedAt: '2026-11-15',
+            decision: 'rejected',
+            notes: 'Insufficient evidence.',
+          },
+          rejectionReason: 'Insufficient evidence',
         },
       ]),
     ).toEqual([])
+  })
+
+  it('rejects an approved status with a rejected decision', () => {
+    const errors = validateCandidatePolicyAssessments([
+      {
+        ...validAssessment,
+        status: 'reviewed',
+        reviewStatus: 'approved',
+        review: {
+          reviewer: 'reviewer-1',
+          reviewedAt: '2026-11-15',
+          decision: 'rejected',
+          notes: 'Rejected.',
+        },
+        rejectionReason: 'Insufficient evidence',
+      },
+    ])
+
+    expect(errors).toContain(
+      'Assessment 1: approved review status requires approved decision',
+    )
+  })
+
+  it('rejects a rejected status with an approved decision', () => {
+    const errors = validateCandidatePolicyAssessments([
+      {
+        ...validAssessment,
+        status: 'rejected',
+        reviewStatus: 'rejected',
+        review: {
+          reviewer: 'reviewer-1',
+          reviewedAt: '2026-11-15',
+          decision: 'approved',
+          notes: 'Approved.',
+        },
+        rejectionReason: 'Incorrectly rejected',
+      },
+    ])
+
+    expect(errors).toContain(
+      'Assessment 1: rejected review status requires rejected decision',
+    )
+  })
+
+  it('rejects a reviewed assessment with a pending review', () => {
+    const errors = validateCandidatePolicyAssessments([
+      {
+        ...validAssessment,
+        status: 'reviewed',
+        reviewStatus: 'pending',
+        review: {
+          reviewer: 'reviewer-1',
+          reviewedAt: '2026-11-15',
+          decision: 'approved',
+          notes: '',
+        },
+      },
+    ])
+
+    expect(errors).toContain(
+      'Assessment 1: published assessments require approved review',
+    )
   })
 
   it('rejects invalid evidence URLs', () => {
