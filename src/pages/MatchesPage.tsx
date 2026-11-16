@@ -81,7 +81,9 @@ export default function MatchesPage({ profile }: MatchesPageProps) {
         </section>
       )}
 
-      {preferences.length > 0 && results.length === 0 && (
+      {profile.electorateId &&
+        preferences.length > 0 &&
+        results.length === 0 && (
         <section className="match-empty">
           <h2>Candidate assessments unavailable</h2>
           <p>
