@@ -1,21 +1,31 @@
-
 import { describe, expect, it } from 'vitest'
-import { matchCandidate, rankAllCandidates } from './candidateMatching'
+import { rankAssemblyCandidates } from './candidateMatching'
 
-const preferences = [
-  {
-    policyId: 'housing-supply' as const,
-    score: 2 as const,
-    importance: 5,
-  },
-]
+describe('rankAssemblyCandidates', () => {
+  it('returns no matches when no candidate assessments are published', () => {
+    const results = rankAssemblyCandidates([
+      {
+        policyId: 'housing-supply',
+        score: 2,
+        importance: 3,
+      },
+    ])
 
-describe('candidate matching integration', () => {
-  it('returns null for candidates with insufficient assessment coverage', () => {
-    expect(matchCandidate(preferences, 'maya-chen')).toBeNull()
+    expect(results).toEqual([])
   })
 
-  it('ranks candidates using their assessment positions', () => {
-    expect(rankAllCandidates(preferences)).toEqual([])
+  it('accepts the conservative ranking mode', () => {
+    const results = rankAssemblyCandidates(
+      [
+        {
+          policyId: 'housing-supply',
+          score: 2,
+          importance: 3,
+        },
+      ],
+      'conservative',
+    )
+
+    expect(results).toEqual([])
   })
 })

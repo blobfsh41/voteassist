@@ -1,42 +1,25 @@
-
-import { candidates } from '../data/candidates'
+import { getValidatedCandidatePolicyPositions } from '../data/candidatePolicyAssessmentRegistry'
 import {
-  getValidatedCandidatePolicyPositions,
-} from '../data/candidatePolicyAssessmentRegistry'
-import {
-  calculatePolicyMatch,
   rankCandidates,
+  type RankingMode,
+  type RankedCandidate,
+  type UserPolicyPreference,
 } from './policyMatching'
-import type {
-  UserPolicyPreference,
-  MatchResult,
-  RankedCandidate,
-} from './policyMatching'
+import { candidates } from '../data/candidates'
 
-export function matchCandidate(
+export function rankAssemblyCandidates(
   preferences: UserPolicyPreference[],
-  candidateId: string,
-): MatchResult | null {
-  const candidate = getValidatedCandidatePolicyPositions(candidateId)
-
-  return calculatePolicyMatch(preferences, candidate)
-}
-
-export function rankAllCandidates(
-  preferences: UserPolicyPreference[],
-  electorateId?: string | null,
+  mode: RankingMode = 'stance',
+  minimumCoverage = 0.6,
 ): RankedCandidate[] {
-  const electorateCandidates = electorateId === undefined
-    ? candidates
-    : electorateId === null
-      ? []
-      : candidates.filter(
-          candidate => candidate.electorateId === electorateId,
-        )
-
-  const positions = electorateCandidates.map(candidate =>
-    getValidatedCandidatePolicyPositions(candidate.id),
+  const candidatePositions = candidates.map(
+    (candidate) => getValidatedCandidatePolicyPositions(candidate.id),
   )
 
-  return rankCandidates(preferences, positions)
+  return rankCandidates(
+    preferences,
+    candidatePositions,
+    mode,
+    minimumCoverage,
+  )
 }
