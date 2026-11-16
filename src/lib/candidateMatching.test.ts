@@ -1,31 +1,43 @@
 import { describe, expect, it } from 'vitest'
-import { rankAssemblyCandidates } from './candidateMatching'
+import { candidates } from '../data/candidates'
+import { rankAllCandidates } from './candidateMatching'
 
-describe('rankAssemblyCandidates', () => {
+describe('rankAllCandidates', () => {
+  it('returns no matches when no electorate is selected', () => {
+    expect(
+      rankAllCandidates(
+        [{ policyId: 'housing-supply', score: 2, importance: 3 }],
+        null,
+      ),
+    ).toEqual([])
+  })
+
   it('returns no matches when no candidate assessments are published', () => {
-    const results = rankAssemblyCandidates([
-      {
-        policyId: 'housing-supply',
-        score: 2,
-        importance: 3,
-      },
-    ])
+    const electorateId = candidates.find(
+      (candidate) => candidate.status === 'active',
+    )?.electorateId
+
+    expect(electorateId).toBeTruthy()
+
+    const results = rankAllCandidates(
+      [{ policyId: 'housing-supply', score: 2, importance: 3 }],
+      electorateId!,
+    )
 
     expect(results).toEqual([])
   })
 
-  it('accepts the conservative ranking mode', () => {
-    const results = rankAssemblyCandidates(
-      [
-        {
-          policyId: 'housing-supply',
-          score: 2,
-          importance: 3,
-        },
-      ],
-      'conservative',
-    )
+  it('supports conservative ranking mode', () => {
+    const electorateId = candidates.find(
+      (candidate) => candidate.status === 'active',
+    )?.electorateId
 
-    expect(results).toEqual([])
+    expect(
+      rankAllCandidates(
+        [{ policyId: 'housing-supply', score: 2, importance: 3 }],
+        electorateId ?? null,
+        'conservative',
+      ),
+    ).toEqual([])
   })
 })
