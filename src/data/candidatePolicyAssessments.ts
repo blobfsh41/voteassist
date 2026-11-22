@@ -59,8 +59,8 @@ export function getCandidatePolicyPositions(
 
   for (const assessment of assessments) {
     if (seenPolicies.has(assessment.policyId)) {
-      throw new Error(
-        `Duplicate assessment for ${candidateId}: ${assessment.policyId}`,
+          throw new Error(
+            `Duplicate assessment for ${candidateId}: ${assessment.policyId}`,
       )
     }
 
