@@ -4,7 +4,6 @@ import ForYouPage from './pages/ForYouPage'
 import CandidatesPage from './pages/CandidatesPage'
 import ComparePage from './pages/ComparePage'
 import AppHeader, { type Page } from './components/AppHeader'
-import { candidates } from './data/candidates'
 import { changeCandidateSelection } from './lib/candidateSelection'
 import type { UserProfile } from './data/profileTypes'
 import { loadProfile, saveProfile } from './lib/profileStorage'
@@ -85,18 +84,13 @@ function App() {
   const viewPolicies = (candidateId: string) => {
     if (!profile.electorateId) return
 
-    const electorateCandidates = candidates.filter(
-      candidate => candidate.electorateId === profile.electorateId,
+    const nextSelection = changeCandidateSelection(
+      selectedCandidates,
+      selectedCandidates.length < 2 ? selectedCandidates.length : 0,
+      candidateId,
     )
 
-    const otherCandidate = electorateCandidates.find(
-      candidate => candidate.id !== candidateId,
-    )
-
-    if (!otherCandidate) return
-
-    updateCandidateSelection([candidateId, otherCandidate.id])
-    navigate('Compare')
+    updateCandidateSelection(nextSelection)
   }
 
   return (

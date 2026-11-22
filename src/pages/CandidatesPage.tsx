@@ -175,7 +175,7 @@ export default function CandidatesPage({
                       className="candidate-view-link"
                       onClick={() => onViewPolicies(candidate.id)}
                     >
-                      View policy positions
+                      Select for comparison
                       <Icon name="arrow" size={15} />
                     </button>
 
