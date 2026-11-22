@@ -44,35 +44,35 @@ export const policyQuestions = [
     categoryId: 'housing',
     title: 'Housing supply',
     proposition:
-      'Planning rules should allow more homes to be built in areas with high housing demand.',
+      'Planning rules should be changed to allow more housing to be built in areas with high housing demand.',
   },
   {
     id: 'social-housing',
     categoryId: 'housing',
     title: 'Social and affordable housing',
     proposition:
-      'Government should increase investment in social and affordable housing.',
+      'Government should increase funding for the construction of social and affordable housing.',
   },
   {
     id: 'rental-protections',
     categoryId: 'housing',
     title: 'Rental protections',
     proposition:
-      'Rental laws should provide tenants with stronger protections against rent increases and eviction.',
+      'Victoria should introduce stronger restrictions on rent increases and eviction, increasing protections for renters.',
   },
   {
     id: 'transport-frequency',
     categoryId: 'transport',
     title: 'Service frequency',
     proposition:
-      'Government should increase public transport service frequency, including outside peak periods.',
+      'Public transport services should run more frequently, including during off-peak periods.',
   },
   {
     id: 'transport-investment',
     categoryId: 'transport',
     title: 'Public transport investment',
     proposition:
-      'Government should increase investment in public transport infrastructure.',
+      'Government should increase investment in public transport infrastructure, such as rail lines, stations and tram networks.',
   },
 ] as const satisfies readonly PolicyQuestion[]
 
