@@ -169,6 +169,37 @@ describe('candidate policy assessment workflow', () => {
     })
   })
 
+  it('allows rejecting an incomplete draft', () => {
+    expect(
+      rejectAssessment(
+        makeAssessment({
+          rationale: '',
+          evidence: [],
+          score: null,
+        }),
+        'reviewer-1',
+        REVIEWED_AT,
+        'Insufficient evidence to assess this policy',
+      ),
+    ).toMatchObject({
+      status: 'rejected',
+      score: null,
+      rationale: '',
+      evidence: [],
+    })
+  })
+
+  it('rejects an invalid calendar date during rejection', () => {
+    expect(() =>
+      rejectAssessment(
+        makeAssessment(),
+        'reviewer-1',
+        '2026-02-30',
+        'Insufficient evidence',
+      ),
+    ).toThrow('invalid review date')
+  })
+
   it('rejects a missing rejection reason', () => {
     expect(() =>
       rejectAssessment(makeAssessment(), 'reviewer-1', REVIEWED_AT, ''),

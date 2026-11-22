@@ -115,7 +115,7 @@ export function rejectAssessment(
     throw new Error('Rejection reason is required')
   }
 
-  return {
+  const rejectedAssessment: CandidatePolicyAssessment = {
     ...assessment,
     status: 'rejected',
     reviewStatus: 'rejected',
@@ -127,4 +127,8 @@ export function rejectAssessment(
     ),
     rejectionReason: reason.trim(),
   }
+
+  assertValidAssessment(rejectedAssessment)
+
+  return rejectedAssessment
 }

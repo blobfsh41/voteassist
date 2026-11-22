@@ -122,16 +122,18 @@ export function validateCandidatePolicyAssessments(
     }
     seen.add(key)
 
-    if (!assessment.rationale.trim()) {
-      errors.push(`${prefix}: rationale is required`)
+if (assessmentWithReview.status !== 'rejected') {
+      if (!assessment.rationale.trim()) {
+        errors.push(`${prefix}: rationale is required`)
+      }
+
+      if (assessment.evidence.length === 0) {
+        errors.push(`${prefix}: at least one evidence source is required`)
+      }
     }
 
     if (!isValidDate(assessment.assessedAt)) {
       errors.push(`${prefix}: invalid assessment date`)
-    }
-
-    if (assessment.evidence.length === 0) {
-      errors.push(`${prefix}: at least one evidence source is required`)
     }
 
     if (
