@@ -1,0 +1,1353 @@
+# **VoteAssist — Final Database Architecture**
+
+This is the architecture I recommend settling on before we begin implementing the backend. It is designed for the current Victorian election prototype, but should also support federal, state and council elections, multiple candidates per electorate, hundreds of policies, AI research, human reviewers, and historical records.
+
+**Recommended stack: PostgreSQL via Supabase.**
+
+The core design principle is:
+
+> Candidate identity, election participation, sources, evidence, assessments and reviews must be separate records, connected by explicit relationships. Never overwrite published political assessments without preserving their history.
+
+# **1. Architecture overview**
+
+## **VoteAssist data architecture**
+
+**Reference data**
+
+Elections · Parties · Electorates · Policies
+
+**Election participation**
+
+Candidates · Candidate election records · Nominations
+
+**Research**
+
+Sources · Source snapshots · Source links · Evidence
+
+**Assessment & review**
+
+Position assessments · Versions · Reviews · Approval
+
+**Trust & accountability**
+
+Audit events · Change history · Reassessment · Publication
+
+The database is divided into seven logical groups. They can live in the same PostgreSQL database.
+
+| Group          | Purpose                                     |
+| -------------- | ------------------------------------------- |
+| Reference data | Elections, electorates, parties, policies   |
+| Candidate data | People and their participation in elections |
+| Research       | Sources and source versions                 |
+| Evidence       | Individual claims extracted from sources    |
+| Assessments    | Position scores and versions                |
+| Review         | Human approval and moderation               |
+| Audit          | Immutable record of important changes       |
+
+# **2. Database conventions**
+
+These rules apply to nearly every table.
+
+| Field          | Standard                                        |
+| -------------- | ----------------------------------------------- |
+| Primary key    | UUID (`id`)                                     |
+| Dates          | `timestamptz` in UTC                            |
+| Created        | `created_at`                                    |
+| Updated        | `updated_at`                                    |
+| Deletion       | Prefer archival/soft deletion                   |
+| Relationships  | Foreign keys                                    |
+| Uniqueness     | Explicit unique constraints                     |
+| Validation     | Database constraints plus TypeScript validation |
+| Published data | Versioned, not silently overwritten             |
+| Status         | Constrained values, not arbitrary strings       |
+
+UUIDs are used for database records. Existing candidate IDs such as `vic-2026-mordialloc-breskin-alex` should be preserved as external/stable identifiers during migration, rather than discarded.
+
+# **3. Reference data tables**
+
+## **3.1&#x20;**`elections`
+
+One record for each election.
+
+| Column                  | Type        | Rules                                |
+| ----------------------- | ----------- | ------------------------------------ |
+| `id`                    | UUID        | PK                                   |
+| `slug`                  | text        | Unique                               |
+| `name`                  | text        | Required                             |
+| `jurisdiction`          | text        | Required                             |
+| `election_type`         | text        | Required                             |
+| `election_date`         | date        | Nullable until known                 |
+| `nomination_open_date`  | date        | Nullable                             |
+| `nomination_close_date` | date        | Nullable                             |
+| `status`                | enum/text   | planned, active, completed, archived |
+| `official_source_url`   | text        | Nullable                             |
+| `created_at`            | timestamptz |                                      |
+| `updated_at`            | timestamptz |                                      |
+
+Examples:
+
+- Victorian State Election 2026
+- Australian Federal Election 2028
+- City of Melbourne Council Election 2028
+
+`slug` examples: `vic-2026`, `federal-2028`.
+
+## **3.2&#x20;**`electorates`
+
+One record per electorate or electoral division, with historical boundary versions handled separately later if needed.
+
+| Column            | Type        | Rules    |
+| ----------------- | ----------- | -------- |
+| `id`              | UUID        | PK       |
+| `jurisdiction`    | text        | Required |
+| `name`            | text        | Required |
+| `slug`            | text        | Required |
+| `electorate_type` | text        | Required |
+| `external_id`     | text        | Nullable |
+| `created_at`      | timestamptz |          |
+| `updated_at`      | timestamptz |          |
+
+Unique constraint: `(jurisdiction, slug)`.
+
+Examples: Mordialloc, Brighton, Sandringham.
+
+## **3.3&#x20;**`election_electorates`
+
+Connects an electorate to a particular election.
+
+This is necessary because boundaries, names and divisions can change between elections.
+
+| Column                   | Type        | Rules            |
+| ------------------------ | ----------- | ---------------- |
+| `id`                     | UUID        | PK               |
+| `election_id`            | UUID        | FK → elections   |
+| `electorate_id`          | UUID        | FK → electorates |
+| `external_electorate_id` | text        | Nullable         |
+| `boundary_version`       | text        | Nullable         |
+| `status`                 | text        | active, retired  |
+| `created_at`             | timestamptz |                  |
+
+Unique: `(election_id, electorate_id)`.
+
+## **3.4&#x20;**`parties`
+
+One record per political party or independent grouping.
+
+| Column              | Type        | Rules                            |
+| ------------------- | ----------- | -------------------------------- |
+| `id`                | UUID        | PK                               |
+| `name`              | text        | Required                         |
+| `short_name`        | text        | Nullable                         |
+| `slug`              | text        | Unique                           |
+| `party_type`        | text        | party, independent, group, other |
+| `parent_party_id`   | UUID        | Optional FK → parties            |
+| `website_url`       | text        | Nullable                         |
+| `logo_storage_path` | text        | Nullable                         |
+| `status`            | text        | active, inactive, archived       |
+| `created_at`        | timestamptz |                                  |
+| `updated_at`        | timestamptz |                                  |
+
+This supports party name changes, party branches, coalitions and grouping relationships without duplicating party information in candidate records.
+
+# **4. Candidate data**
+
+## **4.1&#x20;**`candidates`
+
+A person, independent of which election they contest.
+
+| Column               | Type        | Rules    |
+| -------------------- | ----------- | -------- |
+| `id`                 | UUID        | PK       |
+| `display_name`       | text        | Required |
+| `given_name`         | text        | Nullable |
+| `family_name`        | text        | Nullable |
+| `slug`               | text        | Required |
+| `profile_image_path` | text        | Nullable |
+| `biography`          | text        | Nullable |
+| `public_profile_url` | text        | Nullable |
+| `created_at`         | timestamptz |          |
+| `updated_at`         | timestamptz |          |
+
+Candidate identity must not be tied to an electorate, election or party. A person can contest multiple elections, different electorates or change parties.
+
+## **4.2&#x20;**`candidate_elections`
+
+This is one of the most important tables in the entire architecture.
+
+One record per candidate's participation in an election.
+
+| Column                   | Type        | Rules                                                            |
+| ------------------------ | ----------- | ---------------------------------------------------------------- |
+| `id`                     | UUID        | PK                                                               |
+| `candidate_id`           | UUID        | FK → candidates                                                  |
+| `election_id`            | UUID        | FK → elections                                                   |
+| `election_electorate_id` | UUID        | FK → election_electorates                                        |
+| `party_id`               | UUID        | FK → parties, nullable                                           |
+| `ballot_position`        | integer     | Nullable                                                         |
+| `external_candidate_id`  | text        | Nullable                                                         |
+| `candidate_status`       | enum/text   | nominated, confirmed, withdrawn, elected, defeated, disqualified |
+| `is_incumbent`           | boolean     | Default false                                                    |
+| `official_candidate_url` | text        | Nullable                                                         |
+| `nomination_date`        | date        | Nullable                                                         |
+| `created_at`             | timestamptz |                                                                  |
+| `updated_at`             | timestamptz |                                                                  |
+
+Unique constraint:
+
+`(candidate_id, election_id)`
+
+**Why this matters**
+
+Tim Richardson could contest multiple elections. His candidate identity remains the same, but his electorate, party, nomination status and ballot position may change. This table preserves each election separately.
+
+## **4.3&#x20;**`candidate_party_history`**&#x20;— optional future extension**
+
+This is not required for the first backend launch. Candidate party affiliations in individual elections are already stored in `candidate_elections`.
+
+Add this table only if VoteAssist needs to record party changes between elections, party membership periods or independently sourced historical affiliations beyond election participation.
+
+# **5. Policy system**
+
+## **5.1&#x20;**`policy_categories`
+
+Organises policy propositions into topics.
+
+| Column        | Type          |
+| ------------- | ------------- |
+| `id`          | UUID PK       |
+| `name`        | text          |
+| `slug`        | text unique   |
+| `description` | text nullable |
+| `sort_order`  | integer       |
+| `created_at`  | timestamptz   |
+
+Examples:
+
+- Housing
+- Economy
+- Environment
+- Education
+- Health
+- Transport
+- Justice
+- Energy
+
+## **5.2&#x20;**`policies`
+
+A stable policy identity, not its wording.
+
+| Column        | Type        | Rules                  |
+| ------------- | ----------- | ---------------------- |
+| `id`          | UUID        | PK                     |
+| `slug`        | text        | Unique                 |
+| `category_id` | UUID        | FK → policy_categories |
+| `status`      | text        | active, retired        |
+| `created_at`  | timestamptz |                        |
+| `updated_at`  | timestamptz |                        |
+
+Example: `housing-supply`
+
+## **5.3&#x20;**`policy_versions`
+
+Policy propositions need versioning. If wording changes significantly, previously reviewed assessments must not silently apply to the new proposition.
+
+| Column            | Type        | Rules                   |
+| ----------------- | ----------- | ----------------------- |
+| `id`              | UUID        | PK                      |
+| `policy_id`       | UUID        | FK → policies           |
+| `version_number`  | integer     | Required                |
+| `title`           | text        | Required                |
+| `proposition`     | text        | Required                |
+| `description`     | text        | Nullable                |
+| `response_type`   | text        | Required                |
+| `is_current`      | boolean     | Default false           |
+| `effective_from`  | timestamptz | Nullable                |
+| `effective_until` | timestamptz | Nullable                |
+| `created_by`      | UUID        | FK → profiles, nullable |
+| `created_at`      | timestamptz |                         |
+
+Unique: `(policy_id, version_number)`.
+
+Example:
+
+**Policy:** housing-supply
+
+Version 1 — original
+
+Planning rules should be changed to allow more housing to be built in areas with high housing demand.
+
+Version 2 — future revision
+
+A potential revised proposition, if approved, is stored separately with a new version number. Existing assessments remain linked to Version 1.
+
+## **5.4&#x20;**`policy_version_elections`
+
+Controls which policy versions are used for which election.
+
+| Column              | Type                      |
+| ------------------- | ------------------------- |
+| `id`                | UUID PK                   |
+| `policy_version_id` | UUID FK → policy_versions |
+| `election_id`       | UUID FK → elections       |
+| `status`            | text                      |
+| `created_at`        | timestamptz               |
+
+Unique: `(policy_version_id, election_id)`.
+
+This lets VoteAssist use different policy libraries across elections without losing historical context.
+
+# **6. Source research system**
+
+This is the foundation of the AI research pipeline.
+
+## **6.1&#x20;**`sources`
+
+One record per unique source identity or URL/document reference.
+
+| Column                | Type        | Rules                                                      |
+| --------------------- | ----------- | ---------------------------------------------------------- |
+| `id`                  | UUID        | PK                                                         |
+| `canonical_url`       | text        | Nullable                                                   |
+| `source_type`         | enum/text   | Required                                                   |
+| `publisher_name`      | text        | Required                                                   |
+| `title`               | text        | Nullable                                                   |
+| `author`              | text        | Nullable                                                   |
+| `published_at`        | timestamptz | Nullable                                                   |
+| `first_discovered_at` | timestamptz | Required                                                   |
+| `last_checked_at`     | timestamptz | Nullable                                                   |
+| `source_status`       | enum/text   | active, unavailable, deleted, restricted, archived         |
+| `credibility_class`   | enum/text   | primary, official, reputable_secondary, community, unknown |
+| `language`            | text        | Nullable                                                   |
+| `content_type`        | text        | Nullable                                                   |
+| `created_at`          | timestamptz |                                                            |
+| `updated_at`          | timestamptz |                                                            |
+
+Possible `source_type` values:
+
+- candidate_statement
+- candidate_website
+- party_policy
+- parliamentary_record
+- media_interview
+- news_article
+- debate
+- community_forum
+- questionnaire
+- social_media
+- official_document
+- other
+
+Important: source credibility is not a score of political truth. It is classification of the source's nature and reliability. A candidate's own statement is authoritative for what the candidate said, but not necessarily for whether their factual claims are correct.
+
+## **6.2&#x20;**`source_versions`
+
+Every time content changes or is re-collected meaningfully, preserve a snapshot version.
+
+| Column                | Type        | Rules        |
+| --------------------- | ----------- | ------------ |
+| `id`                  | UUID        | PK           |
+| `source_id`           | UUID        | FK → sources |
+| `version_number`      | integer     | Required     |
+| `content_text`        | text        | Nullable     |
+| `storage_path`        | text        | Nullable     |
+| `content_hash`        | text        | Required     |
+| `extracted_text_hash` | text        | Nullable     |
+| `snapshot_at`         | timestamptz | Required     |
+| `published_at`        | timestamptz | Nullable     |
+| `extraction_method`   | text        | Nullable     |
+| `extraction_status`   | text        | Required     |
+| `metadata`            | jsonb       | Default `{}` |
+| `created_at`          | timestamptz |              |
+
+Unique:
+
+- `(source_id, version_number)`
+- Optionally `(source_id, content_hash)` to avoid storing identical snapshots repeatedly.
+
+The original source should never be silently replaced with a newer version.
+
+## **6.3&#x20;**`source_links`
+
+Links sources to relevant entities without duplicating source records.
+
+| Column                  | Type                                    |
+| ----------------------- | --------------------------------------- |
+| `id`                    | UUID PK                                 |
+| `source_id`             | UUID FK → sources                       |
+| `candidate_election_id` | UUID FK → candidate_elections, nullable |
+| `party_id`              | UUID FK → parties, nullable             |
+| `policy_id`             | UUID FK → policies, nullable            |
+| `electorate_id`         | UUID FK → electorates, nullable         |
+| `link_type`             | text                                    |
+| `attribution_type`      | text                                    |
+| `created_at`            | timestamptz                             |
+
+At least one target relationship must be present.
+
+Examples:
+
+- A candidate's interview links to their candidate-election record.
+- A party policy page links to the party.
+- An article discussing housing may link to the housing policy.
+- A community forum page containing responses from multiple candidates can be linked to multiple candidate-election records through multiple rows.
+
+A source is not automatically candidate-specific just because it mentions a candidate.
+
+# **7. Evidence system**
+
+Evidence is the most important part of VoteAssist's research integrity. An evidence record is an individual claim or statement—not an entire article, not an AI summary and not a candidate score.
+
+## **7.1&#x20;**`evidence`
+
+One record per extracted or manually entered piece of relevant evidence.
+
+| Column                  | Type        | Rules                          |
+| ----------------------- | ----------- | ------------------------------ |
+| `id`                    | UUID        | PK                             |
+| `candidate_election_id` | UUID        | FK → candidate_elections       |
+| `policy_version_id`     | UUID        | FK → policy_versions           |
+| `source_id`             | UUID        | FK → sources                   |
+| `source_version_id`     | UUID        | FK → source_versions, nullable |
+| `evidence_type`         | text        | Required                       |
+| `attribution_type`      | text        | Required                       |
+| `excerpt`               | text        | Required                       |
+| `excerpt_start`         | integer     | Nullable                       |
+| `excerpt_end`           | integer     | Nullable                       |
+| `speaker_name`          | text        | Nullable                       |
+| `speaker_role`          | text        | Nullable                       |
+| `statement_date`        | timestamptz | Nullable                       |
+| `interpretation`        | text        | Required                       |
+| `relevance`             | text        | Required                       |
+| `limitations`           | text        | Nullable                       |
+| `stance_signal`         | text        | Required                       |
+| `extraction_method`     | text        | Required                       |
+| `ai_model`              | text        | Nullable                       |
+| `prompt_version`        | text        | Nullable                       |
+| `confidence`            | numeric     | Nullable                       |
+| `review_status`         | enum/text   | Required                       |
+| `created_by`            | UUID        | Nullable                       |
+| `reviewed_at`           | timestamptz | Nullable                       |
+| `created_at`            | timestamptz |                                |
+| `updated_at`            | timestamptz |                                |
+
+### **Evidence types**
+
+- Direct candidate statement
+- Candidate campaign material
+- Candidate interview
+- Parliamentary action
+- Voting record
+- Party policy
+- Reported statement
+- Public forum answer
+- Other
+
+### **Attribution types**
+
+- `candidate_personal`
+- `candidate_campaign`
+- `party_position`
+- `party_member_general`
+- `reported_position`
+- `historical_action`
+- `uncertain`
+
+### **Stance signal**
+
+This is the preliminary direction indicated by the evidence, not a final assessment score.
+
+- `support`
+- `oppose`
+- `conditional`
+- `mixed`
+- `neutral`
+- `unclear`
+
+An explicit neutral statement is different from an unclear or unrelated statement.
+
+### **Review status**
+
+- `pending`
+- `approved`
+- `rejected`
+- `needs_revision`
+- `superseded`
+
+Evidence should only be eligible for published assessments when its review status is approved.
+
+## **7.2&#x20;**`evidence_relations`
+
+Evidence can relate to other evidence records.
+
+| Column                | Type               |
+| --------------------- | ------------------ |
+| `id`                  | UUID PK            |
+| `evidence_id`         | UUID FK → evidence |
+| `related_evidence_id` | UUID FK → evidence |
+| `relation_type`       | text               |
+| `created_at`          | timestamptz        |
+
+Relationship types:
+
+- `supports`
+- `contradicts`
+- `qualifies`
+- `updates`
+- `duplicates`
+
+This handles cases such as a candidate making a later statement that clarifies, qualifies or contradicts an earlier position.
+
+Unique constraint: `(evidence_id, related_evidence_id, relation_type)`.
+
+## **7.3&#x20;**`research_jobs`
+
+Tracks AI and automated collection work.
+
+| Column                  | Type                         |
+| ----------------------- | ---------------------------- |
+| `id`                    | UUID PK                      |
+| `job_type`              | text                         |
+| `candidate_election_id` | UUID FK, nullable            |
+| `policy_version_id`     | UUID FK, nullable            |
+| `status`                | text                         |
+| `requested_by`          | UUID FK → profiles, nullable |
+| `provider`              | text, nullable               |
+| `model`                 | text, nullable               |
+| `prompt_version`        | text, nullable               |
+| `started_at`            | timestamptz, nullable        |
+| `completed_at`          | timestamptz, nullable        |
+| `error_message`         | text, nullable               |
+| `results_summary`       | jsonb                        |
+| `created_at`            | timestamptz                  |
+
+Statuses:
+
+- queued
+- running
+- completed
+- failed
+- cancelled
+
+This lets us track research costs, failures, batch operations and reproduce AI research runs.
+
+## **7.4&#x20;**`research_job_results`
+
+Tracks the individual outcomes from each research job.
+
+| Column            | Type                        |
+| ----------------- | --------------------------- |
+| `id`              | UUID PK                     |
+| `research_job_id` | UUID FK → research_jobs     |
+| `source_id`       | UUID FK → sources, nullable |
+| `result_type`     | text                        |
+| `result_payload`  | jsonb                       |
+| `status`          | text                        |
+| `error_message`   | text, nullable              |
+| `created_at`      | timestamptz                 |
+
+This is useful for preserving what a research agent found—even if a source was rejected or its evidence was never approved.
+
+# **8. Candidate policy assessments**
+
+AI extraction and approved candidate positions must remain separate.
+
+## **8.1&#x20;**`assessments`
+
+Represents the logical assessment of one candidate on one policy version.
+
+| Column                  | Type        | Rules                              |
+| ----------------------- | ----------- | ---------------------------------- |
+| `id`                    | UUID        | PK                                 |
+| `candidate_election_id` | UUID        | FK → candidate_elections           |
+| `policy_version_id`     | UUID        | FK → policy_versions               |
+| `current_version_id`    | UUID        | FK → assessment_versions, nullable |
+| `publication_status`    | text        | Required                           |
+| `created_at`            | timestamptz |                                    |
+| `updated_at`            | timestamptz |                                    |
+
+Unique:
+
+`(candidate_election_id, policy_version_id)`
+
+This table represents the assessment identity, not its score.
+
+## **8.2&#x20;**`assessment_versions`
+
+Every assessment change creates a new version. This is the authoritative record of the score, reasoning, and approval.
+
+| Column             | Type        | Rules                                                      |
+| ------------------ | ----------- | ---------------------------------------------------------- |
+| `id`               | UUID        | PK                                                         |
+| `assessment_id`    | UUID        | FK → assessments                                           |
+| `version_number`   | integer     | Required                                                   |
+| `score`            | smallint    | -2, -1, 0, 1, 2 or NULL                                    |
+| `rationale`        | text        | Required                                                   |
+| `evidence_summary` | text        | Nullable                                                   |
+| `coverage_status`  | text        | Required                                                   |
+| `confidence`       | numeric     | Nullable                                                   |
+| `status`           | text        | draft, submitted, approved, rejected, published, withdrawn |
+| `proposed_by`      | UUID        | FK → profiles, nullable                                    |
+| `approved_by`      | UUID        | FK → profiles, nullable                                    |
+| `approved_at`      | timestamptz | Nullable                                                   |
+| `published_at`     | timestamptz | Nullable                                                   |
+| `valid_from`       | timestamptz | Nullable                                                   |
+| `valid_until`      | timestamptz | Nullable                                                   |
+| `change_reason`    | text        | Nullable                                                   |
+| `created_at`       | timestamptz |                                                            |
+
+Unique: `(assessment_id, version_number)`.
+
+### **Score constraints**
+
+## **Assessment scoring**
+
+**-2**
+
+Strongly opposes
+
+**-1**
+
+Somewhat opposes
+
+**0**
+
+Neutral / mixed
+
+**+1**
+
+Somewhat supports
+
+**+2**
+
+Strongly supports
+
+**NULL**
+
+Insufficient evidence
+
+Database constraint:
+
+```
+CHECK (score IS NULL OR score BETWEEN -2 AND 2)
+```
+
+But this alone is insufficient because it allows values like `-1.5` in some types. The column should be `smallint`, and the only valid values must be `-2, -1, 0, 1, 2` or `NULL`.
+
+Also:
+
+- `NULL` is never interpreted as neutral.
+- Neutral requires evidence of a neutral position.
+- Mixed evidence should be explained.
+- Conditional positions must be represented in the rationale.
+- An approved version cannot be edited in place.
+- A new assessment requires a new version.
+
+## **8.3&#x20;**`assessment_evidence`
+
+Connects an assessment version to the evidence that supports, contradicts or qualifies it.
+
+| Column                  | Type                          |
+| ----------------------- | ----------------------------- |
+| `id`                    | UUID PK                       |
+| `assessment_version_id` | UUID FK → assessment_versions |
+| `evidence_id`           | UUID FK → evidence            |
+| `relationship`          | text                          |
+| `reviewer_note`         | text, nullable                |
+| `created_at`            | timestamptz                   |
+
+Relationship types:
+
+- `supports_assessment`
+- `contradicts_assessment`
+- `qualifies_assessment`
+- `context_only`
+
+Unique: `(assessment_version_id, evidence_id, relationship)`.
+
+This is the key traceability link. An assessment must be able to display exactly which evidence was used to reach its conclusion.
+
+# **9. Reviews and approvals**
+
+Review records are separate from evidence and assessments. This prevents approval from simply being a field the AI can set itself.
+
+## **9.1&#x20;**`profiles`
+
+Application users and internal reviewers.
+
+| Column           | Type        | Rules                          |
+| ---------------- | ----------- | ------------------------------ |
+| `id`             | UUID        | PK; references `auth.users.id` |
+| `display_name`   | text        | Required                       |
+| `role`           | text        | Required                       |
+| `account_status` | text        | active, suspended              |
+| `created_at`     | timestamptz |                                |
+| `updated_at`     | timestamptz |                                |
+
+Roles:
+
+- `user`
+- `researcher`
+- `reviewer`
+- `senior_reviewer`
+- `admin`
+
+Roles must not be freely editable by users themselves. Role changes are controlled by backend permission logic.
+
+## **9.2&#x20;**`reviews`
+
+A general review table for evidence and assessments.
+
+| Column                  | Type        | Rules                                |
+| ----------------------- | ----------- | ------------------------------------ |
+| `id`                    | UUID        | PK                                   |
+| `review_type`           | text        | evidence, assessment, source, policy |
+| `evidence_id`           | UUID        | FK, nullable                         |
+| `assessment_version_id` | UUID        | FK, nullable                         |
+| `source_id`             | UUID        | FK, nullable                         |
+| `policy_version_id`     | UUID        | FK, nullable                         |
+| `reviewer_id`           | UUID        | FK → profiles                        |
+| `decision`              | text        | Required                             |
+| `reason`                | text        | Nullable                             |
+| `comments`              | text        | Nullable                             |
+| `reviewed_at`           | timestamptz | Required                             |
+| `created_at`            | timestamptz |                                      |
+
+Exactly one review target must be specified, matching `review_type`.
+
+### **Review decisions**
+
+| Target     | Allowed decisions                             |
+| ---------- | --------------------------------------------- |
+| Evidence   | approved, rejected, needs_revision            |
+| Assessment | approved, rejected, needs_revision            |
+| Source     | verified, unverified, unreliable, unavailable |
+| Policy     | approved, rejected, needs_revision            |
+
+Review records are append-only. If someone changes their decision, create another review record; don't overwrite the old one.
+
+## **9.3 Publication rules**
+
+An assessment cannot be published unless:
+
+- It has a valid score or `null`.
+- It has a rationale.
+- It has linked evidence.
+- Evidence is reviewed and approved.
+- Evidence sufficiently addresses the proposition.
+- Source attribution is correct.
+- It has passed assessment review.
+- The approving reviewer has the correct permissions.
+- The required evidence-source threshold has been satisfied or a documented exception approved.
+- The proposition version is valid for the election.
+- There is no unresolved blocking issue.
+
+The publication process should be enforced server-side, not just by hiding the Publish button in the UI.
+
+# **10. Audit history**
+
+## **10.1&#x20;**`audit_events`
+
+This is the system-wide record of consequential changes.
+
+| Column        | Type        | Rules                              |
+| ------------- | ----------- | ---------------------------------- |
+| `id`          | UUID        | PK                                 |
+| `actor_id`    | UUID        | FK → profiles, nullable for system |
+| `action`      | text        | Required                           |
+| `entity_type` | text        | Required                           |
+| `entity_id`   | UUID        | Required                           |
+| `before_data` | jsonb       | Nullable                           |
+| `after_data`  | jsonb       | Nullable                           |
+| `reason`      | text        | Nullable                           |
+| `request_id`  | text        | Nullable                           |
+| `ip_hash`     | text        | Nullable, privacy-controlled       |
+| `created_at`  | timestamptz | Required                           |
+
+Actions include:
+
+- candidate_created
+- candidate_updated
+- candidate_archived
+- source_added
+- source_updated
+- source_snapshot_created
+- evidence_extracted
+- evidence_approved
+- evidence_rejected
+- assessment_created
+- assessment_updated
+- assessment_approved
+- assessment_published
+- assessment_withdrawn
+- policy_version_created
+- review_created
+- role_changed
+
+Audit records should be append-only. Even administrators should not be able to casually modify or delete historical audit entries through the application.
+
+## **10.2&#x20;**`assessment_status_history`
+
+Although audit events capture all system activity, this dedicated table simplifies tracking assessment lifecycle changes.
+
+| Column                  | Type                          |
+| ----------------------- | ----------------------------- |
+| `id`                    | UUID PK                       |
+| `assessment_id`         | UUID FK → assessments         |
+| `assessment_version_id` | UUID FK → assessment_versions |
+| `previous_status`       | text, nullable                |
+| `new_status`            | text                          |
+| `changed_by`            | UUID FK → profiles, nullable  |
+| `reason`                | text, nullable                |
+| `changed_at`            | timestamptz                   |
+
+This can be generated automatically by database triggers or controlled backend functions.
+
+# **11. Additional tables for data quality and scale**
+
+These tables are important, but we don't need to implement all their functionality immediately.
+
+## **11.1&#x20;**`source_checks`
+
+Tracks automated source health and availability.
+
+| Column            | Type              |
+| ----------------- | ----------------- |
+| `id`              | UUID PK           |
+| `source_id`       | UUID FK → sources |
+| `checked_at`      | timestamptz       |
+| `http_status`     | integer, nullable |
+| `content_hash`    | text, nullable    |
+| `content_changed` | boolean, nullable |
+| `check_status`    | text              |
+| `error_message`   | text, nullable    |
+
+Purpose:
+
+- Detect dead links.
+- Detect changed source content.
+- Flag evidence requiring reassessment.
+- Avoid repeatedly processing unchanged pages.
+
+## **11.2&#x20;**`candidate_aliases`
+
+Handles name variations, alternate spellings and matching imported records.
+
+| Column         | Type                 |
+| -------------- | -------------------- |
+| `id`           | UUID PK              |
+| `candidate_id` | UUID FK → candidates |
+| `alias`        | text                 |
+| `alias_type`   | text                 |
+| `created_at`   | timestamptz          |
+
+Examples:
+
+- Full legal name
+- Campaign name
+- Alternate spelling
+- Previous surname
+- Source-specific name
+
+Aliases must not automatically merge people without verification.
+
+## **11.3&#x20;**`import_batches`
+
+Tracks official data imports.
+
+| Column        | Type                         |
+| ------------- | ---------------------------- |
+| `id`          | UUID PK                      |
+| `election_id` | UUID FK → elections          |
+| `source_name` | text                         |
+| `source_url`  | text                         |
+| `file_hash`   | text                         |
+| `imported_by` | UUID FK → profiles, nullable |
+| `imported_at` | timestamptz                  |
+| `status`      | text                         |
+| `summary`     | jsonb                        |
+| `errors`      | jsonb                        |
+
+Purpose:
+
+- Record which VEC/AEC file produced which candidate records.
+- Reproduce imports.
+- Detect changes between official nomination files.
+- Safely update candidate lists.
+
+## **11.4&#x20;**`data_quality_issues`
+
+Centralised queue of data problems.
+
+| Column        | Type                                   |
+| ------------- | -------------------------------------- |
+| `id`          | UUID PK                                |
+| `entity_type` | text                                   |
+| `entity_id`   | UUID                                   |
+| `issue_type`  | text                                   |
+| `severity`    | low, medium, high, critical            |
+| `description` | text                                   |
+| `status`      | open, investigating, resolved, ignored |
+| `assigned_to` | UUID FK → profiles, nullable           |
+| `resolved_at` | timestamptz, nullable                  |
+| `resolution`  | text, nullable                         |
+| `created_at`  | timestamptz                            |
+
+Examples:
+
+- Missing candidate electorate.
+- Duplicate candidate.
+- Broken source URL.
+- Candidate attribution uncertain.
+- Conflicting approved evidence.
+- Outdated assessment.
+- Missing source snapshot.
+- Assessment with inadequate evidence.
+
+# **12. Database relationship diagram**
+
+This is the proposed core relational model. The important relationships are the ones that preserve election-specific identity and evidence traceability.
+
+\#chatgpt-mermaid-\_r_1m3\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_1m3\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1m3\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1m3\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_1m3\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m3\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_1m3\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_1m3\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_1m3\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_1m3\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_1m3\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_1m3\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1m3\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1m3\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_1m3\_ p{margin:0;}#chatgpt-mermaid-\_r_1m3\_ .entityBox{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1m3\_ .relationshipLabelBox{fill:rgb(48, 48, 48);opacity:0.7;background-color:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_1m3\_ .relationshipLabelBox rect{opacity:0.5;}#chatgpt-mermaid-\_r_1m3\_ .labelBkg{background-color:rgba(48, 48, 48, 0.5);}#chatgpt-mermaid-\_r_1m3\_ .edgeLabel{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_1m3\_ .edgeLabel .label rect{fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_1m3\_ .edgeLabel .label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m3\_ .edgeLabel .label{fill:rgb(31, 78, 148);font-size:14px;}#chatgpt-mermaid-\_r_1m3\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1m3\_ .edge-pattern-dashed{stroke-dasharray:8,8;}#chatgpt-mermaid-\_r_1m3\_ .node rect,#chatgpt-mermaid-\_r_1m3\_ .node circle,#chatgpt-mermaid-\_r_1m3\_ .node ellipse,#chatgpt-mermaid-\_r_1m3\_ .node polygon{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_1m3\_ .relationshipLine{stroke:rgb(175, 175, 175);stroke-width:1px;fill:none;}#chatgpt-mermaid-\_r_1m3\_ .marker{fill:none!important;stroke:rgb(175, 175, 175)!important;stroke-width:1;}#chatgpt-mermaid-\_r_1m3\_ [data-look=neo].labelBkg{background-color:rgba(48, 48, 48, 0.5);}#chatgpt-mermaid-\_r_1m3\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_1m3\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_1m3\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_1m3\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_1m3\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m3\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_1m3\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1m3\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}ELECTIONSELECTION_ELECTORATESELECTORATESCANDIDATE_ELECTIONSCANDIDATESPARTIESPOLICY_CATEGORIESPOLICIESPOLICY_VERSIONSPOLICY_VERSION_ELECTIONSSOURCESSOURCE_VERSIONSSOURCE_LINKSEVIDENCEASSESSMENTSASSESSMENT_VERSIONSASSESSMENT_EVIDENCEREVIEWSPROFILESSOURCE_CHECKSCANDIDATE_ALIASESIMPORT_BATCHESAUDIT_EVENTScontainsused_incontestsparticipatesrepresentsgroupsversionedapplies_tousessnapshotslinkedsupportscaptured_fromstatementsrelates_toassessedassessed_onrevisionssupported_bycitedreviewedreviewedperformsproposesmonitoredaliasesimportsacts
+
+# **13. Exact database constraints and integrity rules**
+
+These are requirements, not optional cleanup tasks.
+
+## **Candidate integrity**
+
+- A candidate-election entry must belong to one election.
+- The electorate must belong to the same election as the candidate entry.
+- A candidate cannot be entered twice in the same election.
+- Ballot position must be positive if supplied.
+- Withdrawn candidates remain in the database.
+- Party affiliations are election-specific.
+- Candidate records must not be deleted just because an election is over.
+
+## **Source integrity**
+
+- Source URLs must be normalised before duplicate checks.
+- A source can be connected to many candidates.
+- Source versions cannot be silently overwritten.
+- Content hashes should identify duplicate snapshots.
+- Source attribution must be explicit.
+- A source being inaccessible does not automatically invalidate previously verified evidence, but it flags it for review.
+
+## **Evidence integrity**
+
+- Evidence must refer to a specific candidate-election record.
+- Evidence must refer to a specific policy version.
+- Evidence must have a source.
+- Evidence excerpt must be traceable to its source or snapshot where possible.
+- Party-level evidence cannot silently become candidate-level evidence.
+- Rejected evidence cannot support a published assessment.
+- AI-generated interpretations must be identifiable as AI-generated.
+- Approved evidence cannot be edited in place; revisions should create new records or versions.
+
+## **Assessment integrity**
+
+- One assessment per candidate-election-policy version.
+- Only valid score values are permitted.
+- `NULL` means insufficient evidence.
+- Every published assessment must have a rationale.
+- Every published assessment must link to its supporting evidence.
+- Published versions must have reviewer approval.
+- Assessment revisions must preserve previous versions.
+- A policy proposition revision does not automatically transfer old scores.
+- Withdrawn assessments remain available internally for audit.
+
+## **Review integrity**
+
+- Reviewer actions are recorded permanently.
+- A reviewer cannot approve their own assessment proposal, at least for the standard publication workflow.
+- Reviewer roles are controlled server-side.
+- Rejection must have a reason where required.
+- Approval must refer to the exact assessment version reviewed.
+
+# **14. Supabase security architecture**
+
+The database must not rely on the frontend to protect sensitive records. Permissions must be enforced by PostgreSQL and backend functions.
+
+## **Role permissions**
+
+\| Role | Candidates & policies | Sources & evidence | Assessments | Reviews | Audit |\
+\|---|---|---|---|---|\
+\| Public | Read public data | Read published evidence | Read published only | No | No |\
+\| User | Read | Read published | Read published | No | No |\
+\| Researcher | Read | Create/edit drafts | Create draft proposals | Submit for review | Own actions logged |\
+\| Reviewer | Read | Approve/reject evidence | Review proposals | Create review decisions | Read permitted history |\
+\| Senior reviewer | Read | Review all | Approve/publish/withdraw | Full review control | Read history |\
+\| Admin | Manage | Manage | Manage | Manage roles/workflows | Read all |
+
+Important security rules
+
+- Public users must never access unpublished assessment versions.
+- Researchers must not be able to approve their own work.
+- AI service credentials must never be exposed in the browser.
+- Supabase service-role credentials must only exist server-side.
+- Users cannot assign themselves reviewer/admin roles.
+- Audit history cannot be edited through normal CRUD permissions.
+- Database storage of raw source snapshots must have access controls.
+- Draft assessments must be excluded from all public API queries.
+- Publishing must occur through controlled server-side logic.
+
+## **14.1 Authentication**
+
+Use Supabase Auth for:
+
+- Researcher accounts
+- Reviewer accounts
+- Admin accounts
+- Future optional user accounts for preference saving
+
+Public matching should ideally work without requiring an account.
+
+## **14.2 Row Level Security (RLS)**
+
+Every table needs a deliberate access policy. Do not enable RLS and then accidentally make tables publicly writable.
+
+For example:
+
+- `candidates` — public read.
+- `policies` — public read for approved/current policy content.
+- `sources` — public read only when linked to published evidence.
+- `evidence` — public read only for approved evidence associated with published assessments.
+- `assessment_versions` — public read only for published versions.
+- `reviews` — private.
+- `audit_events` — private.
+- `research_jobs` — private.
+- `profiles` — restricted.
+- `candidate_aliases` — internal read/write initially.
+- `import_batches` — internal.
+
+Use database views or controlled RPC functions to expose public information rather than exposing every underlying table directly.
+
+# **15. Public database views**
+
+The frontend should not need to query every internal table and reconstruct publication logic itself.
+
+We should create dedicated read-only views.
+
+## `public_candidates_view`
+
+Returns:
+
+- Candidate display name
+- Candidate ID
+- Party
+- Electorate
+- Election
+- Ballot position
+- Candidate status
+- Public profile
+
+## `public_policies_view`
+
+Returns:
+
+- Policy ID
+- Policy title
+- Proposition
+- Category
+- Policy version
+- Election applicability
+- Public status
+
+## `public_assessments_view`
+
+Returns:
+
+- Candidate
+- Policy
+- Score
+- Rationale
+- Evidence summary
+- Publicly approved evidence links
+- Coverage status
+- Assessment date
+- Assessment version
+- Confidence/uncertainty disclosure
+
+Only the currently published version of an assessment may be returned.
+
+## `public_sources_view`
+
+Returns only sources that are permitted to be publicly displayed:
+
+- Title
+- Publisher
+- URL
+- Publication date
+- Source type
+- Source credibility classification
+- Citation context
+
+## `candidate_policy_coverage_view`
+
+Returns candidate-level coverage statistics:
+
+- Total applicable policies
+- Number assessed
+- Number unknown
+- Number published
+- Coverage percentage
+
+## `research_dashboard_view`
+
+Internal only:
+
+- Candidate research completeness
+- Source counts
+- Evidence counts
+- Pending reviews
+- Unpublished assessments
+- Research backlog
+- Missing sources
+- Stale data
+
+These views should be defined as SQL views or carefully controlled database functions, with appropriate security settings—not merely frontend filtering.
+
+# **16. Policy weighting and matching configuration**
+
+The current matching engine already has policy weights and scoring logic. The database should eventually store matching configuration rather than hard-code every election's configuration in the frontend.
+
+## `policy_weights`
+
+| Column              | Type                      |
+| ------------------- | ------------------------- |
+| `id`                | UUID PK                   |
+| `policy_version_id` | UUID FK → policy_versions |
+| `election_id`       | UUID FK → elections       |
+| `weight`            | numeric                   |
+| `is_active`         | boolean                   |
+| `created_at`        | timestamptz               |
+| `updated_at`        | timestamptz               |
+
+Unique: `(policy_version_id, election_id)`.
+
+Constraints:
+
+- Weight must be greater than zero.
+- Weights must be normalised by the matching calculation or validated as a total.
+- Changes should be versioned and auditable.
+- Default weights should be clearly defined.
+- The matching algorithm version should be recorded when results are produced.
+
+## **Future extension —&#x20;**`matching_algorithm_versions`
+
+| Column          | Type        |
+| --------------- | ----------- |
+| `id`            | UUID PK     |
+| `version`       | text unique |
+| `description`   | text        |
+| `configuration` | jsonb       |
+| `status`        | text        |
+| `created_at`    | timestamptz |
+
+This is useful if VoteAssist changes the matching mathematics later. We can reproduce results calculated under previous algorithms.
+
+# **17. Data lifecycle**
+
+Every piece of data should have a defined path through the system.
+
+\#chatgpt-mermaid-\_r_1ma\_{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;fill:rgb(237, 237, 237);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#chatgpt-mermaid-\_r_1ma\_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1ma\_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#chatgpt-mermaid-\_r_1ma\_ .error-icon{fill:rgb(48, 48, 48);}#chatgpt-mermaid-\_r_1ma\_ .error-text{fill:rgb(237, 237, 237);stroke:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1ma\_ .edge-thickness-normal{stroke-width:1px;}#chatgpt-mermaid-\_r_1ma\_ .edge-thickness-thick{stroke-width:3.5px;}#chatgpt-mermaid-\_r_1ma\_ .edge-pattern-solid{stroke-dasharray:0;}#chatgpt-mermaid-\_r_1ma\_ .edge-thickness-invisible{stroke-width:0;fill:none;}#chatgpt-mermaid-\_r_1ma\_ .edge-pattern-dashed{stroke-dasharray:3;}#chatgpt-mermaid-\_r_1ma\_ .edge-pattern-dotted{stroke-dasharray:2;}#chatgpt-mermaid-\_r_1ma\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1ma\_ .marker.cross{stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1ma\_ svg{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:16px;}#chatgpt-mermaid-\_r_1ma\_ p{margin:0;}#chatgpt-mermaid-\_r_1ma\_ .label{font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1ma\_ .cluster-label text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1ma\_ .cluster-label span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1ma\_ .cluster-label span p{background-color:transparent;}#chatgpt-mermaid-\_r_1ma\_ .label text,#chatgpt-mermaid-\_r_1ma\_ span{fill:rgb(237, 237, 237);color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1ma\_ .node rect,#chatgpt-mermaid-\_r_1ma\_ .node circle,#chatgpt-mermaid-\_r_1ma\_ .node ellipse,#chatgpt-mermaid-\_r_1ma\_ .node polygon,#chatgpt-mermaid-\_r_1ma\_ .node path{fill:rgb(9, 23, 44);stroke:rgb(31, 78, 148);stroke-width:1px;}#chatgpt-mermaid-\_r_1ma\_ .rough-node .label text,#chatgpt-mermaid-\_r_1ma\_ .node .label text,#chatgpt-mermaid-\_r_1ma\_ .image-shape .label,#chatgpt-mermaid-\_r_1ma\_ .icon-shape .label{text-anchor:middle;}#chatgpt-mermaid-\_r_1ma\_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#chatgpt-mermaid-\_r_1ma\_ .rough-node .label,#chatgpt-mermaid-\_r_1ma\_ .node .label,#chatgpt-mermaid-\_r_1ma\_ .image-shape .label,#chatgpt-mermaid-\_r_1ma\_ .icon-shape .label{text-align:center;}#chatgpt-mermaid-\_r_1ma\_ .node.clickable{cursor:pointer;}#chatgpt-mermaid-\_r_1ma\_ .root .anchor path{fill:rgb(175, 175, 175)!important;stroke-width:0;stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1ma\_ .arrowheadPath{fill:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1ma\_ .edgePath .path{stroke:rgb(175, 175, 175);stroke-width:1px;}#chatgpt-mermaid-\_r_1ma\_ .flowchart-link{stroke:rgb(175, 175, 175);fill:none;}#chatgpt-mermaid-\_r_1ma\_ .edgeLabel{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_1ma\_ .edgeLabel p{background-color:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_1ma\_ .edgeLabel rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_1ma\_ .labelBkg{background-color:rgba(0, 0, 0, 0.5);}#chatgpt-mermaid-\_r_1ma\_ .cluster rect{fill:rgb(48, 48, 48);stroke:rgba(255, 255, 255, 0.15);stroke-width:1px;}#chatgpt-mermaid-\_r_1ma\_ .cluster text{fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1ma\_ .cluster span{color:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1ma\_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";font-size:12px;background:rgb(48, 48, 48);border:1px solid rgba(255, 255, 255, 0.15);border-radius:2px;pointer-events:none;z-index:100;}#chatgpt-mermaid-\_r_1ma\_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(237, 237, 237);}#chatgpt-mermaid-\_r_1ma\_ rect.text{fill:none;stroke-width:0;}#chatgpt-mermaid-\_r_1ma\_ .icon-shape,#chatgpt-mermaid-\_r_1ma\_ .image-shape{background-color:rgb(0, 0, 0);text-align:center;}#chatgpt-mermaid-\_r_1ma\_ .icon-shape p,#chatgpt-mermaid-\_r_1ma\_ .image-shape p{background-color:rgb(0, 0, 0);padding:2px;}#chatgpt-mermaid-\_r_1ma\_ .icon-shape .label rect,#chatgpt-mermaid-\_r_1ma\_ .image-shape .label rect{opacity:0.5;background-color:rgb(0, 0, 0);fill:rgb(0, 0, 0);}#chatgpt-mermaid-\_r_1ma\_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#chatgpt-mermaid-\_r_1ma\_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#chatgpt-mermaid-\_r_1ma\_ .node .neo-node{stroke:rgb(31, 78, 148);}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].node rect,#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].cluster rect,#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].node polygon{stroke:url(#chatgpt-mermaid-\_r_1ma\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].swimlane.cluster rect{filter:none;}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].node path{stroke:url(#chatgpt-mermaid-\_r_1ma\_-gradient);stroke-width:1px;}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].node .neo-line path{stroke:rgb(31, 78, 148);filter:none;}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].node circle{stroke:url(#chatgpt-mermaid-\_r_1ma\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].node circle .state-start{fill:#000000;}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].icon-shape .icon{fill:url(#chatgpt-mermaid-\_r_1ma\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1ma\_ [data-look="neo"].icon-shape .icon-neo path{stroke:url(#chatgpt-mermaid-\_r_1ma\_-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#chatgpt-mermaid-\_r_1ma\_ .node text{font-size:14px;font-weight:600;letter-spacing:normal;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_1ma\_ .edgeLabels text{font-size:13px;font-weight:600;letter-spacing:-0.08px;fill:rgb(153, 206, 255);}#chatgpt-mermaid-\_r_1ma\_ .node tspan[font-weight="normal"],#chatgpt-mermaid-\_r_1ma\_ .edgeLabels tspan[font-weight="normal"]{font-weight:600;}#chatgpt-mermaid-\_r_1ma\_ .edgeLabel .label rect{opacity:1;rx:13px;ry:13px;fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-width:1px;}#chatgpt-mermaid-\_r_1ma\_ .node rect,#chatgpt-mermaid-\_r_1ma\_ .node circle,#chatgpt-mermaid-\_r_1ma\_ .node ellipse,#chatgpt-mermaid-\_r_1ma\_ .node polygon,#chatgpt-mermaid-\_r_1ma\_ .node path{fill:rgb(0, 40, 77);stroke:rgba(255, 255, 255, 0.1);stroke-width:1px;}#chatgpt-mermaid-\_r_1ma\_ .node rect{rx:16px;ry:16px;}#chatgpt-mermaid-\_r_1ma\_ .mermaid-decision .label-container{fill:rgb(0, 14, 26);stroke:rgb(26, 62, 95);stroke-dasharray:2,2;}#chatgpt-mermaid-\_r_1ma\_ .edgePaths .flowchart-link{stroke:rgb(175, 175, 175);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;}#chatgpt-mermaid-\_r_1ma\_ .marker{fill:rgb(175, 175, 175);stroke:rgb(175, 175, 175);}#chatgpt-mermaid-\_r_1ma\_ :root{--mermaid-font-family:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";}Candidate ImportCandidate RecordsSource DiscoverySource RecordsSource SnapshotsAI Evidence ExtractionEvidence ReviewRejected Evidence ArchivedApproved EvidenceAssessment ProposalAssessment ReviewProposal RejectedApproved Assessment VersionPublicationPublic VoteAssist MatchingMonitoring & ReassessmentRejectReviseApproveRejectNeeds EvidenceApprove
+
+### **Status lifecycle**
+
+| Entity       | Lifecycle                                                            |
+| ------------ | -------------------------------------------------------------------- |
+| Candidate    | Imported → verified → active → withdrawn/archived                    |
+| Source       | Discovered → collected → verified → monitored → unavailable/archived |
+| Evidence     | Extracted → pending → approved/rejected/revision → superseded        |
+| Assessment   | Draft → submitted → approved → published → superseded/withdrawn      |
+| Review       | Created → decision recorded → immutable                              |
+| Research job | Queued → running → completed/failed/cancelled                        |
+
+Nothing should be physically deleted merely because it is no longer current. Retention and deletion policies must be separately defined for legal, privacy and storage reasons.
+
+# **18. Recommended full table inventory**
+
+This is the complete proposed database inventory, grouped by priority.
+
+## **Core tables — required for initial backend**
+
+Build these first
+
+- `elections`
+- `electorates`
+- `election_electorates`
+- `parties`
+- `candidates`
+- `candidate_elections`
+- `policy_categories`
+- `policies`
+- `policy_versions`
+- `policy_version_elections`
+- `profiles`
+- `sources`
+- `source_versions`
+- `source_links`
+- `evidence`
+- `assessments`
+- `assessment_versions`
+- `assessment_evidence`
+- `reviews`
+- `audit_events`
+- `assessment_status_history`
+
+## **Research operations — required before scaling AI research**
+
+- `research_jobs`
+- `research_job_results`
+- `source_checks`
+- `candidate_aliases`
+- `import_batches`
+- `data_quality_issues`
+- `evidence_relations`
+
+## **Advanced / future expansion**
+
+- `policy_weights`
+- `matching_algorithm_versions`
+- Researcher assignment/queue tables
+- Policy review history (if policy versions alone are insufficient)
+- Source access/retention records
+- Election boundary version records
+- Public correction/retraction notices
+- Saved user preferences and matching sessions (if accounts are introduced)
+
+# **19. Critical implementation refinements**
+
+Before calling this architecture final, there are a few technical decisions that should be locked in. These prevent the design from becoming messy once we actually write SQL.
+
+### **A. Avoid unsafe polymorphic relationships**
+
+Tables like `reviews` and `audit_events` reference multiple entity types. PostgreSQL cannot enforce a normal foreign key on a generic `entity_type + entity_id` combination.
+
+**Decision:**
+
+- `reviews`: use explicit nullable target foreign keys and a `CHECK` constraint requiring exactly one target.
+- `source_links`: use explicit nullable foreign keys and a `CHECK` constraint requiring exactly one target per row.
+- `audit_events`: generic entity reference is permitted because audit events must support any table. Validate entity types in the backend and preserve records even if the original entity is archived.
+
+### **B. Don't use a circular current-version pointer**
+
+The earlier `assessments.current_version_id` proposal would create a circular relationship with `assessment_versions`.
+
+**Decision:** Do not store that pointer initially. Use a controlled view or query to identify the current published assessment version. This avoids circular foreign keys and inconsistent pointers.
+
+### **C. No arbitrary status strings**
+
+Use constrained values for statuses and types. For the initial schema, PostgreSQL `CHECK` constraints are acceptable and easier to evolve than creating dozens of native PostgreSQL enums.
+
+For example:
+
+```
+CHECK (
+  status IN (
+    'draft',
+    'submitted',
+    'approved',
+    'rejected',
+    'published',
+    'withdrawn'
+  )
+)
+```
+
+### **D. Confidence is not truth**
+
+AI confidence is stored separately from assessment score.
+
+A confidence value of `0.95` must never be interpreted as a 95% probability that the candidate supports a policy. It is a model's extraction confidence unless we specifically build and validate a statistical calibration system.
+
+### **E. Snapshot storage must be deliberate**
+
+We should store extracted text and relevant metadata in PostgreSQL, but potentially large source files in Supabase Storage.
+
+We must respect copyright, privacy, source terms and applicable collection rules. We should not blindly archive every webpage in full.
+
+### **F. Published data is immutable**
+
+The database should enforce the workflow:
+
+- Drafts can be edited.
+- Submitted versions are frozen while under review.
+- Approved versions are immutable.
+- Published versions are immutable.
+- Corrections create new versions.
+- Withdrawals preserve the old record and require a reason.
+
+# **20. Final architecture decision**
+
+## **VoteAssist database — decisions to lock in**
+
+**Database** — PostgreSQL
+
+**Backend** — Supabase
+
+**Candidate identity** — Separate from election participation
+
+**Policy propositions** — Versioned independently
+
+**Sources** — Stored independently from extracted evidence
+
+**Evidence** — Individual, traceable, reviewable records
+
+**Assessments** — Versioned candidate-policy positions
+
+**Reviews** — Separate from AI extraction and assessment proposals
+
+**Audit history** — Append-only records of consequential changes
+
+**AI research** — Discovery and evidence extraction, never autonomous publication
+
+**Public API** — Controlled views exposing published data only
+
+# **21. Implementation order after architecture approval**
+
+We should implement the schema in migrations in this order. This avoids foreign-key dependency problems and makes testing much easier.
+
+| Migration | Tables                                                                 |
+| --------- | ---------------------------------------------------------------------- |
+| 001       | Elections, electorates, election_electorates, parties                  |
+| 002       | Candidates, candidate_elections, candidate_aliases                     |
+| 003       | Policy categories, policies, policy_versions, policy_version_elections |
+| 004       | Profiles and permissions                                               |
+| 005       | Sources, source_versions, source_links                                 |
+| 006       | Evidence, evidence_relations                                           |
+| 007       | Assessments, assessment_versions, assessment_evidence                  |
+| 008       | Reviews, assessment_status_history                                     |
+| 009       | Audit_events and database audit triggers                               |
+| 010       | Research_jobs, research_job_results                                    |
+| 011       | Source_checks, import_batches, data_quality_issues                     |
+| 012       | Policy weights, matching algorithm versioning                          |
+| 013       | Public views, indexes, RLS policies and controlled functions           |
+
+Each migration should have its own tests and rollback strategy where practical.
+
+## **Architecture completion status**
+
+**Phase 2 — Final database architecture**
+
+Designed
+
+- Candidate identity and election participation
+- Elections, electorates and parties
+- Policies and proposition versioning
+- Sources and snapshots
+- Source attribution/linking
+- Evidence extraction and traceability
+- Assessment and assessment versions
+- Evidence-to-assessment links
+- Reviews and approval workflow
+- Audit history
+- AI research job tracking
+- Data quality tracking
+- Security architecture
+- Public views
+- Data lifecycle
+- Migration sequence
+
+**The architecture is now designed.** We should treat this as the baseline and only change it if implementation exposes a genuine flaw—not casually redesign it while coding.
+
+The next task is **Phase 2 implementation: create the Supabase database migrations, constraints, indexes and schema validation**, starting with the core reference tables. We should build and test this locally before connecting the existing VoteAssist frontend to it.
