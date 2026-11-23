@@ -1,345 +1,327 @@
 # Mordialloc Housing Supply — Evidence Ledger
 
-## Research purpose
+## Research Purpose
 
 Collect traceable evidence of each candidate's position on the VoteAssist housing supply proposition.
 
-This document records evidence independently of the final score. It must not be used to manufacture a score when evidence is insufficient.
+Evidence is recorded independently from scoring. A score must not be inferred from missing information, party affiliation, or general housing-related statements.
 
-## Electorate
+## Electorate and Policy
 
-Mordialloc — 2026 Victorian State Election
-
-## Policy
-
-**ID:** `housing-supply`
+**Electorate:** Mordialloc — 2026 Victorian State Election  
+**Policy ID:** `housing-supply`
 
 **Proposition:**
 
 > Planning rules should be changed to allow more housing to be built in areas with high housing demand.
 
-All findings below are preliminary. Party policies are distinguished from individual candidate positions. Scores are not approved or published.
+**Research status:** Preliminary source audit completed. Research is incomplete and not exhaustive. Candidate positions remain unapproved and unpublished.
+
+## Source Standards
+
+- Candidate statements are evidence of that candidate's position.
+- Party policy provides context but must not automatically be attributed to an individual candidate.
+- A general commitment to affordable or social housing does not, by itself, answer the proposition about planning rules and housing supply in high-demand areas.
+- Lack of a statement is not opposition, neutrality, or a mixed position.
+- Only primary or reliably traceable sources should support a score.
+- Sources and claims that cannot be verified are removed or explicitly marked as unverified.
+- A score must be traceable to evidence and a clear rationale.
 
 ---
 
 ## Candidate 1 — Paul O'Halloran
 
-**Candidate ID:** `vic-2026-mordialloc-o-halloran-paul`
-**Party:** Liberal
-**Research status:** Researched — candidate-specific evidence insufficient; party evidence identified.
+**Candidate ID:** `vic-2026-mordialloc-o-halloran-paul`  
+**Party:** Liberal  
+**Research status:** Candidate-specific position not established.
 
 ### Evidence 1 — Victorian Liberal housing policy
 
-- **Source title:** More Homes, More Choice — Victorian Liberal Housing Policy
-- **Source type:** Official party policy
-- **URL:** https://vic.liberal.org.au/Uploads/37417316674975808NRT_vicliberal/2026-Policy-Housing.pdf
-- **Publication date:** Policy document published in 2026; exact publication date not established.
-- **Relevant evidence:**
-  - Proposes fast-tracking housing in existing growth areas.
-  - Supports industry-led precinct structure plans to accelerate land release and housing supply.
-  - Proposes increased housing density in selected inner-city areas.
-  - Supports densification in middle and outer suburbs where local councils and communities consider it appropriate.
-  - Supports council housing plans and locally determined housing growth.
-- **Context and limitations:** This is Victorian Liberal Party policy, not a direct personal statement from Paul O'Halloran. The policy supports increasing housing supply but places conditions on where and how densification occurs.
+- **Source:** Victorian Liberal housing policy, 2026
+- **URL:** https://vicliberal.au/Uploads/37417316674975808NRT_vicliberal/2026-Policy-Housing.pdf
+- **Source type:** Party policy, not an individual candidate statement.
+- **Relevant evidence:** The previously cited housing policy document was not successfully verified. The claims previously attributed to it concerning housing growth, densification and planning reform are not retained as verified evidence.
+- **Limit:** This source requires verification or replacement before party-policy claims can be used.
 
-### Evidence 2 — Candidate's public campaign profile
+### Evidence 2 — Candidate profile
 
-- **Source title:** Paul O'Halloran — Liberal Candidate Profile
-- **Source type:** Official candidate/party profile
-- **URL:** https://vicliberal.org.au/
-- **Publication date:** Profile dated 9 July 2026; accessed during research 23 November 2026.
-- **Relevant evidence:** His profile emphasises reducing crime, lowering costs for families and delivering a government that works. No specific housing supply or planning reform position was identified in the profile reviewed.
-- **Context and limitations:** The absence of a housing statement does not establish opposition or neutrality. The profile is hosted by the Liberal Party.
-
-### Evidence 3 — Candidate issue coverage cross-check
-
-- **Source title:** Paul O'Halloran — Mordialloc Candidate 2026
-- **Source type:** Independent candidate information aggregator
-- **URL:** https://yourballot.com.au/vic/2026/candidates/paul-o-halloran/
-- **Publication date:** Updated 22 November 2026.
-- **Relevant evidence:** The site's review of candidate materials does not identify a specific housing or renting position.
-- **Context and limitations:** Secondary source. This is a cross-check of available campaign material, not primary evidence of his personal position.
+- **Source:** ABC Victorian Election candidate guide
+- **URL:** https://www.abc.net.au/news/elections/vic/2026/guide/mord
+- **Source type:** Candidate profile.
+- **Relevant evidence:** The reviewed profile describes O'Halloran's background and career but does not establish a position on housing supply or planning reform.
+- **Limit:** The absence of a housing statement is not evidence of his position.
 
 ### Research conclusion
 
-- **Candidate-specific housing supply position:** Not established.
-- **Party-level evidence:** Liberal policy supports additional housing supply, including growth-area development and conditional densification.
-- **Conflicting evidence:** No direct candidate statement identified that conflicts with the party policy. However, the party's support for densification is conditional on local planning and community considerations.
-- **Assessment recommendation:** Insufficient candidate-specific evidence to assign a defensible score.
-- **Score:** `null`
-- **Reasoning:** Party policy is relevant context, but it cannot reliably establish the candidate's individual position on the specific proposition. No candidate-specific statement addressing planning reform to increase housing in high-demand areas was found in the material reviewed.
-
-### Research limitations
-
-This is not an exhaustive review of every interview, social media post, campaign video or public appearance. A candidate-specific statement may exist that has not yet been located.
+- **Candidate-specific position:** Not established.
+- **Party-level evidence:** Housing-policy source requires further verification.
+- **Conflicting evidence:** None verified.
+- **Recommended score:** `null`
+- **Reasoning:** No verified candidate-specific statement addressing the proposition was identified.
 
 ---
 
 ## Candidate 2 — Mahee Hossain
 
-**Candidate ID:** `vic-2026-mordialloc-hossain-mahee`
-**Party:** Victorian Socialists
-**Research status:** Researched — insufficient evidence for candidate-specific score.
+**Candidate ID:** `vic-2026-mordialloc-hossain-mahee`  
+**Party:** Victorian Socialists  
+**Research status:** Candidate-specific position not established.
 
-### Evidence 1 — Candidate campaign profile
+### Evidence 1 — Candidate campaign statement
 
 - **Source:** Victorian Socialists — Mahee Hossain
-- **Source type:** Candidate statement
 - **URL:** https://vic.socialists.org.au/candidates/mahee-hossain
-- **Published:** November 2026
-- **Relevant evidence:** Hossain identifies housing shortages and the cost-of-living crisis as issues affecting working-class people.
-- **Context:** His statement addresses the housing crisis but does not directly establish his position on changing planning rules to permit more housing in high-demand areas.
+- **Source type:** Candidate campaign statement.
+- **Relevant evidence:** Hossain discusses housing shortages and the cost-of-living crisis, highlighting housing insecurity and affordability.
+- **Limit:** The statement does not directly establish whether he supports changing planning rules to allow more housing in high-demand areas.
 
-### Evidence 2 — Victorian Socialists Housing for All policy
+### Evidence 2 — Party housing policy
 
-- **Source:** Victorian Socialists — Housing for All
-- **Source type:** Official party policy
-- **URL:** https://vic.socialists.org.au/policies/housing-for-all
-- **Relevant evidence:** Proposes substantial public housing construction, public ownership initiatives, planning requirements for inclusionary housing, and stronger council planning powers.
-- **Context:** This is party policy. It demonstrates the party's housing and planning platform but cannot automatically be attributed to Hossain personally.
+- **Source:** Victorian Socialists housing policy
+- **URL:** Not independently verified in this audit.
+- **Source type:** Party policy.
+- **Relevant evidence:** Earlier research referenced public housing construction and planning requirements, but those specific policy claims have not been verified against a primary source.
+- **Limit:** These claims are retained only as research leads and cannot be used to assign a candidate score.
 
 ### Research conclusion
 
-- **Candidate-specific support for housing supply:** Not established.
-- **Party-level position:** Supports substantial public housing construction and stronger planning requirements, including public housing inclusion.
-- **Conflicting evidence:** None identified in the sources reviewed.
-- **Assessment recommendation:** `null`
-- **Reasoning:** The candidate acknowledges housing shortages but does not explicitly address the proposition about planning-rule changes to increase supply in high-demand areas.
+- **Candidate-specific position:** Housing insecurity is identified as a concern, but the exact proposition is not addressed.
+- **Party-level position:** Specific housing policy claims require further source verification.
+- **Conflicting evidence:** None verified.
+- **Recommended score:** `null`
+- **Reasoning:** Housing concerns alone do not establish a candidate's position on planning reform to increase supply.
 
 ---
 
 ## Candidate 3 — Lily Potucek
 
-**Candidate ID:** `vic-2026-mordialloc-potucek-lily`
-**Party:** Family First
-**Research status:** Researched — insufficient evidence for candidate-specific score.
+**Candidate ID:** `vic-2026-mordialloc-potucek-lily`  
+**Party:** Family First  
+**Research status:** Candidate-specific position not established.
 
-### Evidence 1 — Lily Potucek candidate profile
+### Evidence 1 — Candidate profile
 
-- **Source:** Family First — Lily Potucek, Candidate for Mordialloc
-- **Source type:** Candidate profile
+- **Source:** Family First — Lily Potucek
 - **URL:** https://www.familyfirstparty.org.au/potucek_2026
-- **Relevant evidence:** Emphasises families, freedom, community concerns and listening to Mordialloc residents.
-- **Context:** No specific position on planning reform or housing supply was identified in the candidate profile reviewed.
+- **Source type:** Candidate profile.
+- **Relevant evidence:** The candidate profile emphasises families, community concerns and listening to local residents.
+- **Limit:** No verified position on planning reform or housing supply was identified in the material reviewed.
 
 ### Evidence 2 — Family First housing policy
 
-- **Source:** Family First housing policy, referenced in The Public Ledger's Mordialloc candidate profile
-- **Source type:** Party policy
+- **Source:** The Public Ledger — Mordialloc candidate issue summary
 - **URL:** https://www.thepublicledger.au/candidates/mordialloc-lily-potucek-familyfirst
-- **Relevant evidence:** Party policy supports releasing more land, reducing planning barriers, and expanding opportunities for housing.
-- **Context:** Party-level policy, not an explicit personal statement from Potucek.
+- **Source type:** Secondary party-policy summary.
+- **Relevant evidence:** The page attributes housing policy to Family First, including land release and reducing regulatory barriers.
+- **Limit:** The underlying primary policy source has not been independently verified. These claims are treated as a research lead only, not established evidence.
 
 ### Research conclusion
 
 - **Candidate-specific position:** Not established.
-- **Party-level position:** Supports expanding housing supply through land release and reducing regulatory barriers.
-- **Conflicting evidence:** None identified.
-- **Assessment recommendation:** `null`
-- **Reasoning:** Family First policy supports elements of increased housing supply, but individual attribution is not justified by the sources reviewed.
+- **Party-level position:** Unverified policy lead.
+- **Conflicting evidence:** None verified.
+- **Recommended score:** `null`
+- **Reasoning:** No verified candidate-specific statement addressing the proposition was identified.
 
 ---
 
 ## Candidate 4 — Rachel Versteegen
 
-**Candidate ID:** `vic-2026-mordialloc-versteegen-rachel`
-**Party:** Libertarian Party
-**Research status:** Researched — insufficient evidence.
+**Candidate ID:** `vic-2026-mordialloc-versteegen-rachel`  
+**Party:** Libertarian  
+**Research status:** Candidate-specific position not established.
 
-### Evidence 1 — Candidate campaign profile
+### Evidence 1 — Candidate profile
 
 - **Source:** Your Ballot — Rachel Versteegen
-- **Source type:** Candidate profile
 - **URL:** https://yourballot.com.au/vic/2026/candidates/rachel-versteegen/
-- **Relevant evidence:** Describes her emphasis on personal liberty, free choice and improving life for local individuals, families and businesses.
-- **Context:** No specific housing supply or planning reform position was identified in the campaign material reviewed.
+- **Source type:** Candidate profile.
+- **Relevant evidence:** The reviewed profile describes her political priorities and campaign background.
+- **Limit:** No specific housing supply or planning reform position was verified.
 
-### Evidence 2 — Libertarian Party policy overview
+### Evidence 2 — Party-policy information
 
-- **Source:** The Public Ledger — Rachel Versteegen, Libertarian
-- **Source type:** Party policy summary
+- **Source:** The Public Ledger — Rachel Versteegen, Mordialloc
 - **URL:** https://www.thepublicledger.au/candidates/mordialloc-rachel-versteegen-libertarian
-- **Relevant evidence:** The profile references party policies on tax reduction and economic matters, but no sufficiently specific housing supply or planning position was established in the material available to us.
-- **Context:** Party policies cannot automatically be treated as individual candidate commitments.
+- **Source type:** Secondary candidate and party information.
+- **Relevant evidence:** The material reviewed did not establish a sufficiently specific position on the housing supply proposition.
+- **Limit:** No primary party housing-policy source was verified in this audit.
 
 ### Research conclusion
 
 - **Candidate-specific position:** Not established.
-- **Party-level position on this proposition:** Not sufficiently established in the sources reviewed.
-- **Conflicting evidence:** None identified.
-- **Assessment recommendation:** `null`
-- **Reasoning:** No reliable evidence establishing Versteegen's position on the specific housing proposition was found.
+- **Party-level position:** Not sufficiently verified.
+- **Conflicting evidence:** None verified.
+- **Recommended score:** `null`
+- **Reasoning:** No reliable evidence establishing her position on the specific proposition was identified.
 
 ---
 
 ## Candidate 5 — Nadia Ticehurst
 
-**Candidate ID:** `vic-2026-mordialloc-ticehurst-nadia`
-**Party:** One Nation Victoria
-**Research status:** Researched — insufficient evidence for candidate-specific score.
+**Candidate ID:** `vic-2026-mordialloc-ticehurst-nadia`  
+**Party:** One Nation Victoria  
+**Research status:** Candidate-specific position not established.
 
 ### Evidence 1 — Candidate profile
 
 - **Source:** One Nation Victoria — Nadia Ticehurst
-- **Source type:** Candidate profile
 - **URL:** https://vic.onenation.org.au/candidate/nadia-ticehurst
-- **Relevant evidence:** Discusses her background in nursing, community healthcare, local community involvement and priorities.
-- **Context:** No direct statement about planning-rule changes for housing supply was identified in the candidate profile reviewed.
+- **Source type:** Candidate profile.
+- **Relevant evidence:** The profile describes her background and community priorities.
+- **Limit:** No direct statement about planning-rule changes for housing supply was verified.
 
 ### Evidence 2 — One Nation Victoria housing policy
 
-- **Source:** One Nation Victoria — Affordable Housing
-- **Source type:** Official party policy
+- **Source:** One Nation Victoria — Cost of Living/Affordable Housing
 - **URL:** https://vic.onenation.org.au/policies/cost-of-living
-- **Relevant evidence:**
-  - Release under-used government land for housing.
-  - Introduce faster planning and building approval processes.
-  - Review and reduce fees and charges that raise building costs.
-  - Provide incentives for low-cost housing.
-  - Require community consultation before high-rise development in established suburbs.
-- **Context:** This is official party policy. It supports some mechanisms to increase supply but also places conditions on development. It is not direct evidence of Ticehurst's personal position.
+- **Source type:** Official party policy.
+- **Relevant evidence:** The previously reviewed policy outlines proposals relating to releasing under-used government land, speeding up planning and building approvals, reducing certain building costs, and community consultation for high-rise developments in established suburbs.
+- **Limit:** These are party-level proposals, not direct evidence of Ticehurst's personal position. The exact policy wording and details should be checked again before publication.
 
 ### Research conclusion
 
 - **Candidate-specific position:** Not established.
-- **Party-level position:** Supports faster approvals, land release and reducing development costs, with community consultation.
-- **Conflicting evidence:** The party's support for faster development is qualified by consultation and established-suburb protections.
-- **Assessment recommendation:** `null`
-- **Reasoning:** Party policy broadly supports mechanisms for increased housing supply, but no candidate-specific evidence sufficiently establishes Ticehurst's own position on the proposition.
+- **Party-level position:** Contains proposals related to increasing housing supply, but policy details require final verification.
+- **Conflicting evidence:** Party-level support for faster development is qualified by community consultation and established-suburb considerations.
+- **Recommended score:** `null`
+- **Reasoning:** Party policy cannot be used as a substitute for a verified candidate-specific position.
 
 ---
 
 ## Candidate 6 — Alex Breskin
 
-**Candidate ID:** `vic-2026-mordialloc-breskin-alex`
-**Party:** Australian Greens
-**Research status:** Researched — direct evidence found, but proposition-specific position remains insufficiently established.
+**Candidate ID:** `vic-2026-mordialloc-breskin-alex`  
+**Party:** Australian Greens  
+**Research status:** Direct candidate evidence identified; proposition remains nuanced.
 
-### Evidence 1 — Candidate campaign statement
+### Evidence 1 — Community forum candidate responses
 
-- **Source:** Australian Greens Victoria candidate profile, reported through Your Ballot
-- **Source type:** Candidate statement
-- **URL:** https://yourballot.com.au/vic/2026/candidates/alex-breskin/
-- **Relevant evidence:** Breskin identifies accessible public housing as a priority.
-- **Context:** This supports a commitment to housing access but does not directly establish his position on planning-rule changes to increase total housing supply.
-
-### Evidence 2 — Community information forum response
-
-- **Source:** Save Rossdale Action Group — Candidate responses
-- **Source type:** Candidate response to community questions
+- **Source:** Save Rossdale Action Group — Candidate responses to community questions
 - **URL:** https://www.saverossdale.org.au/community-information-forum-candidate-responses/
-- **Relevant evidence:** Breskin supports additional housing near stations and shops, particularly affordable housing, while favouring community involvement, a scale fitting local character, trees and open space.
-- **Context:** This is direct candidate evidence of conditional support for housing development in suitable locations. However, it does not explicitly endorse broad planning-rule changes as worded in the VoteAssist proposition.
+- **Source type:** Direct candidate answers published by a community group.
+- **Relevant evidence:** Breskin supports additional housing near stations and shops, particularly affordable housing. His position also emphasises community involvement, development scale fitting local character, protection of trees and open space, and local involvement in planning decisions.
+- **Limit:** This supports additional housing in suitable locations but does not necessarily establish blanket support for changing planning rules to increase housing supply across all high-demand areas. The exact response should be rechecked against the original source before any assessment is approved.
 
-### Evidence 3 — Greens planning policy
+### Evidence 2 — Candidate profile
 
-- **Source:** Victorian Greens — Planning for liveable cities and towns, referenced by The Public Ledger
-- **Source type:** Official party policy
+- **Source:** Your Ballot — Alex Breskin, Mordialloc
+- **URL:** https://yourballot.com.au/vic/2026/candidates/alex-breskin/
+- **Source type:** Candidate profile.
+- **Relevant evidence:** The candidate profile identifies accessible public housing as a priority.
+- **Limit:** This is evidence of a housing-access priority, but not direct evidence of his position on the planning reform proposition.
+
+### Evidence 3 — Greens housing and planning policy
+
+- **Source:** The Public Ledger — Alex Breskin, Greens
 - **URL:** https://www.thepublicledger.au/candidates/mordialloc-alex-breskin-greens
-- **Relevant evidence:** Party policy supports a 30% public and genuinely affordable housing requirement in developments over 15 dwellings, and a 40% urban tree-canopy target.
-- **Context:** These are party-level policy positions, not direct evidence of Breskin's personal position on every planning reform.
+- **Source type:** Secondary party-policy summary.
+- **Relevant evidence:** The page contains Greens policy context regarding affordable housing and urban planning.
+- **Limit:** Specific policy details have not been independently verified against the original Greens policy documents and are not attributed to Breskin personally.
 
 ### Research conclusion
 
-- **Candidate-specific position:** Supports additional housing in suitable locations, with community input and local-character considerations.
-- **Party-level position:** Supports substantial public and affordable housing requirements and planning reform.
-- **Conflicting evidence:** Supports additional housing, but opposes inappropriate development that undermines local character, green space or community participation.
-- **Assessment recommendation:** `null` (provisional)
-- **Reasoning:** Direct evidence demonstrates conditional support for additional housing, but does not sufficiently establish support for the specific proposition concerning changing planning rules in high-demand areas. Revisit this score if more explicit evidence of his position on planning reform is found.
+- **Candidate-specific position:** Supports additional housing near transport and services under conditions relating to community input, development scale and environmental considerations.
+- **Party-level position:** Additional housing and planning policy context requires primary-source verification.
+- **Conflicting considerations:** Supports additional housing but also emphasises local character, community participation and environmental protection.
+- **Recommended score:** `null` (provisional)
+- **Reasoning:** The direct evidence is relevant but does not yet clearly establish support or opposition to the exact proposition as worded. Revisit if the proposition is clarified or additional direct evidence is found.
 
 ---
 
 ## Candidate 7 — Tim Richardson
 
-**Candidate ID:** `vic-2026-mordialloc-richardson-tim`
-**Party:** Australian Labor Party
-**Research status:** Researched — insufficient evidence for candidate-specific score.
+**Candidate ID:** `vic-2026-mordialloc-richardson-tim`  
+**Party:** Australian Labor Party  
+**Research status:** Candidate-specific position not established.
 
-### Evidence 1 — Parliament of Victoria member profile
+### Evidence 1 — Parliamentary profile
 
 - **Source:** Parliament of Victoria — Tim Richardson
-- **Source type:** Official parliamentary profile
 - **URL:** https://www.parliament.vic.gov.au/members/tim-richardson/
-- **Relevant evidence:** His profile outlines community priorities, transport and infrastructure, equality, public services and his ministerial responsibilities.
-- **Context:** The profile does not establish a specific personal position on planning-rule changes to increase housing supply.
+- **Source type:** Official parliamentary profile.
+- **Relevant evidence:** The profile outlines his public roles, career and community priorities.
+- **Limit:** The reviewed material does not establish a specific personal position on planning-rule changes to increase housing supply.
 
-### Evidence 2 — Candidate campaign coverage
+### Evidence 2 — Candidate issue coverage
 
-- **Source:** Your Ballot — Tim Richardson
-- **Source type:** Candidate information aggregator
+- **Source:** Your Ballot — Tim Richardson, Mordialloc
 - **URL:** https://yourballot.com.au/vic/2026/candidates/tim-richardson/
-- **Relevant evidence:** Housing and renting coverage largely concerns his ministerial work on renter protections and reforms.
-- **Context:** Rental protection policies do not necessarily establish his position on housing supply or planning reform.
+- **Source type:** Candidate information aggregator.
+- **Relevant evidence:** The reviewed housing-related coverage largely concerns renter protections and housing-related ministerial responsibilities.
+- **Limit:** Rental protections do not necessarily establish his position on housing supply or planning reform.
 
 ### Research conclusion
 
 - **Candidate-specific position:** Not established.
-- **Party-level position:** Labor has broader housing and planning policies, but those have not been used to assign a personal score here.
-- **Conflicting evidence:** None identified regarding the exact proposition.
-- **Assessment recommendation:** `null`
-- **Reasoning:** Evidence concerning renter protections, ministerial responsibilities and general housing issues does not sufficiently establish his position on the specific proposition.
+- **Party-level position:** Broader Labor housing policies have not been used to assign a personal score.
+- **Conflicting evidence:** None verified regarding the exact proposition.
+- **Recommended score:** `null`
+- **Reasoning:** Evidence regarding renter protections and general housing responsibilities is insufficient to establish his position on the specific proposition.
 
 ---
 
 ## Candidate 8 — Renee Thompson
 
-**Candidate ID:** `vic-2026-mordialloc-thompson-renee`
-**Party:** Legalise Cannabis Victoria
-**Research status:** Researched — insufficient evidence for candidate-specific score.
+**Candidate ID:** `vic-2026-mordialloc-thompson-renee`  
+**Party:** Legalise Cannabis Victoria  
+**Research status:** Candidate-specific position not established.
 
 ### Evidence 1 — Candidate profile
 
 - **Source:** Legalise Cannabis Victoria — Renee Thompson, Candidate for Mordialloc
-- **Source type:** Candidate profile
 - **URL:** https://www.lcvicparty.org.au/renee_thompson_candidate_for_mordialloc
-- **Relevant evidence:** Identifies accessible housing, inclusion, community support and advocacy as important concerns.
-- **Context:** The profile does not establish a specific personal position on changing planning rules to increase housing supply in high-demand areas.
+- **Source type:** Candidate/party campaign profile.
+- **Relevant evidence:** The profile highlights community advocacy, inclusion, accessibility and local community priorities.
+- **Limit:** The reviewed profile does not establish a specific position on housing supply or planning-rule changes.
 
-### Evidence 2 — Nepean by-election campaign material
+### Evidence 2 — Previous housing-related campaign claims
 
-- **Source:** VEC How-to-vote card for Renee Thompson
-- **Source type:** Candidate campaign material
-- **URL:** https://www.buildaballot.org.au/party-candidate-assessments/legalise-cannabis-vic26
-- **Relevant evidence:** Her previous campaign priorities included quality, affordable and accessible local housing.
-- **Context:** This demonstrates concern about housing accessibility but not a specific position on planning reform or housing supply mechanisms.
-
-### Evidence 3 — Legalise Cannabis Victoria housing policy
-
-- **Source:** Build a Ballot — Legalise Cannabis Victoria policy assessment
-- **Source type:** Party policy summary
-- **URL:** https://www.buildaballot.org.au/party-candidate-assessments/legalise-cannabis-vic26
-- **Relevant evidence:** Party policy proposes building 80,000 new social housing dwellings over ten years.
-- **Context:** Party policy supports expanding social housing. It does not necessarily establish the candidate's individual position on the specific planning proposition.
+- **Source:** Previously cited Legalise Cannabis Victoria campaign material and third-party policy summary.
+- **URL:** Previously cited: https://www.buildaballot.org.au/party-candidate-assessments/legalise-cannabis-vic26
+- **Source type:** Secondary campaign/policy summary.
+- **Relevant evidence:** Earlier research referenced accessible housing and an 80,000 social-housing proposal.
+- **Limit:** These specific claims and their source attribution were not independently verified in this audit. They are removed from scoreable evidence pending verification.
 
 ### Research conclusion
 
 - **Candidate-specific position:** Not established.
-- **Party-level position:** Supports a significant expansion of social housing.
-- **Conflicting evidence:** No specific conflicting position identified.
-- **Assessment recommendation:** `null`
-- **Reasoning:** The available candidate material supports housing accessibility, but does not sufficiently establish a personal position on changing planning rules to increase housing supply in high-demand areas.
+- **Party-level position:** Housing-policy claims require further source verification.
+- **Conflicting evidence:** None verified.
+- **Recommended score:** `null`
+- **Reasoning:** No verified candidate-specific position on changing planning rules to increase housing supply in high-demand areas was identified.
 
 ---
 
-## Batch research limitations
+## Candidate List Cross-check
 
-This research was conducted as an initial batch using available candidate profiles, party policy documents, community forum responses and secondary sources.
+The VEC's official Mordialloc nominations page:
 
-It is not exhaustive. We have not systematically searched every speech, interview, social media post, debate, parliamentary record or local campaign video.
+https://www.vec.vic.gov.au/electoral-boundaries/state-districts/mordialloc-district/nominations
 
-No candidate has received a final approved score from this research alone.
+This source is used to confirm the candidate list and ballot order, not candidate policy positions.
 
-## Current pilot summary
+## Batch Research Limitations
 
-| Candidate | Candidate-specific position | Recommended score |
+This is a preliminary source audit, not exhaustive research.
+
+We have not systematically searched every candidate speech, interview, social media post, debate, parliamentary record, campaign video or public event.
+
+Some secondary sources were reviewed, but underlying primary policy sources were not verified in every case. Those entries are explicitly marked as research leads or limitations rather than presented as established evidence.
+
+Research should continue using candidate-specific statements, official party policy documents (clearly labelled as party policy), parliamentary records where relevant, and reliable reporting.
+
+## Pilot Summary
+
+| Candidate | Evidence-based conclusion | Recommended score |
 |---|---|---:|
-| Paul O'Halloran | Not established | `null` |
-| Mahee Hossain | Not established | `null` |
-| Lily Potucek | Not established | `null` |
-| Rachel Versteegen | Not established | `null` |
-| Nadia Ticehurst | Not established | `null` |
-| Alex Breskin | Conditional support for additional housing; planning proposition not explicit enough | `null` |
-| Tim Richardson | Not established | `null` |
-| Renee Thompson | Not established | `null` |
+| Paul O'Halloran | Party-policy source unverified; personal position not established | `null` |
+| Mahee Hossain | Housing shortage and affordability concern stated; proposition not addressed | `null` |
+| Lily Potucek | Candidate position not established; party-policy lead unverified | `null` |
+| Rachel Versteegen | No verified housing/planning position found | `null` |
+| Nadia Ticehurst | Party policy contains supply-related proposals; personal position not established | `null` |
+| Alex Breskin | Supports more housing near services with local/community and environmental conditions; exact proposition remains ambiguous | `null` |
+| Tim Richardson | Rental policy evidence does not establish planning/supply position | `null` |
+| Renee Thompson | Candidate profile verified; housing/planning position not established | `null` |
 
-All assessments remain unpublished pending further evidence, validation and review.
+**All assessments remain unpublished. No candidate score should be generated from this ledger alone.**
